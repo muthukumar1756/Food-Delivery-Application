@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2bc14943-99f3-49a1-b73f-2267a809311f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/database/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/database/src/main/java/org/swiggy/connection/DataBaseConnection.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/launcher/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/launcher/src/main/java/org/swiggy/SwiggyActivator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/controller/RestaurantController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/datahandler/RestaurantDataHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/datahandler/impl/RestaurantDataHandlerImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/exception/FileAccessException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/exception/FoodLoadingException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/exception/MenuCardNotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/exception/RestaurantLoadingException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/initializer/RestaurantInitializer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/model/Food.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/model/FoodType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/model/Restaurant.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/service/RestaurantService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/service/impl1/RestaurantServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/service/impl2/RestaurantServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/org/swiggy/view/RestaurantView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-module/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/controller/UserController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/datahandler/UserDataHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/datahandler/impl/UserDataHandlerImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/exception/HashAlgorithmNotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/exception/UserCreationException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/exception/UserNotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/exception/UserUpdateException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/model/PasswordGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/model/User.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/service/UserService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/service/impl1/UserServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/service/impl2/UserServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/view/UserDataUpdateType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/org/swiggy/view/UserView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/controller/CartController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/controller/OrderController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/datahandler/CartDataHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/datahandler/OrderDataHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/datahandler/impl/CartDataHandlerImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/datahandler/impl/OrderDataHandlerImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/exception/CartNotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/exception/CartUpdateException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/exception/PlaceOrderException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/model/Cart.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/model/Order.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/service/CartService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/service/OrderService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/service/impl1/CartServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/service/impl1/OrderServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/service/impl2/CartServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/service/impl2/OrderServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/view/CartView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/useraction/src/main/java/org/swiggy/view/OrderView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/validator/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/validator/src/main/java/org/swiggy/UserDataValidator.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2baKbP8bxPZWxbyFJd0hZ54Yhov" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="foldersAlwaysOnTop" value="false" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;openjdk-21&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/java/Projects java/foodorderingapp&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.annotationProcessors&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\java\Projects java\FoodDeliveryApplication\shared-module\src\main\resources" />
+      <recent name="D:\java\Projects java\FoodDeliveryApplication\restaurant\src\main\resources" />
+      <recent name="D:\java\Projects java\FoodDeliveryApplication\user\src\main\resources" />
+      <recent name="D:\java\Projects java\FoodDeliveryApplication\order\src\main\resources" />
+      <recent name="D:\java\Projects java\FoodDeliveryApplication\Launcher\src\main\resources" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\java\Projects java\FoodDeliveryApplication\database\src\main\java\org\swiggy\connection" />
+      <recent name="D:\java\Projects java\FoodDeliveryApplication\restaurant\src\main\java\org\swiggy\model" />
+      <recent name="D:\java\Projects java\FoodDeliveryApplication\order\src\main\java\org\swiggy\datahandler\impl" />
+      <recent name="D:\java\Projects java\FoodDeliveryApplication\order\src\main\java\org\swiggy\datahandler" />
+      <recent name="D:\java\Projects java\FoodDeliveryApplication\common\src\main\java\org\swiggy" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.swiggy.controller" />
+      <recent name="org.swiggy.view" />
+      <recent name="org.swiggy" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="foodorderingapp" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="foodorderingapp" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2bc14943-99f3-49a1-b73f-2267a809311f" name="Changes" comment="" />
+      <created>1706447823612</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1706447823612</updated>
+    </task>
+    <servers />
+  </component>
+</project>
