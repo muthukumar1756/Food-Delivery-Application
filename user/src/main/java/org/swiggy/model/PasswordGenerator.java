@@ -49,12 +49,12 @@ public class PasswordGenerator {
             final MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             final byte[] encodedHash = messageDigest.digest(password.getBytes(StandardCharsets.UTF_8));
 
-            final StringBuilder hexString = new StringBuilder();
+            final StringBuilder hashString = new StringBuilder();
             for (final byte hashByte : encodedHash) {
-                hexString.append(String.format("%02x", hashByte));
+                hashString.append(String.format("%02x", hashByte));
             }
 
-            return hexString.substring(0, 25);
+            return hashString.substring(0, 25);
         } catch (NoSuchAlgorithmException message) {
             throw new HashAlgorithmNotFoundException(message.getMessage());
         }

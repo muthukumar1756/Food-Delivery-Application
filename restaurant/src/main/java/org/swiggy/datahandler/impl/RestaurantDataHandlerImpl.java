@@ -3,10 +3,10 @@ package org.swiggy.datahandler.impl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.swiggy.exception.CartUpdateException;
-import org.swiggy.exception.FoodLoadingException;
+import org.swiggy.exception.FoodDataLoadFailureException;
 import org.swiggy.exception.MenuCardNotFoundException;
-import org.swiggy.exception.RestaurantLoadingException;
+import org.swiggy.exception.FoodCountAccessException;
+import org.swiggy.exception.RestaurantDataLoadFailureException;
 import org.swiggy.datahandler.RestaurantDataHandler;
 import org.swiggy.connection.DataBaseConnection;
 import org.swiggy.model.Food;
@@ -92,14 +92,14 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
                 connection.rollback();
             } catch (SQLException exceptionMessage) {
                 logger.error(exceptionMessage.getMessage());
-                throw new RestaurantLoadingException(exceptionMessage.getMessage());
+                throw new RestaurantDataLoadFailureException(exceptionMessage.getMessage());
             }
         } finally {
             try {
                 connection.setAutoCommit(true);
             } catch (SQLException message) {
                 logger.error(message.getMessage());
-                throw new RestaurantLoadingException(message.getMessage());
+                throw new RestaurantDataLoadFailureException(message.getMessage());
             }
         }
 
@@ -120,12 +120,11 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
             final ResultSet resultSet = preparedStatement.executeQuery();
 
             resultSet.next();
-            final int result = resultSet.getInt(1);
 
-            return result;
+            return resultSet.getInt(1);
         } catch (SQLException message) {
             logger.error(message.getMessage());
-            throw new RestaurantLoadingException(message.getMessage());
+            throw new RestaurantDataLoadFailureException(message.getMessage());
         }
     }
 
@@ -141,7 +140,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
             preparedStatement.executeUpdate();
         } catch (SQLException message) {
             logger.error(message.getMessage());
-            throw new RestaurantLoadingException(message.getMessage());
+            throw new RestaurantDataLoadFailureException(message.getMessage());
         }
     }
 
@@ -181,14 +180,14 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
                 connection.rollback();
             } catch (SQLException exception) {
                 logger.error(message.getMessage());
-                throw new FoodLoadingException(exception.getMessage());
+                throw new FoodDataLoadFailureException(exception.getMessage());
             }
         } finally {
             try {
                 connection.setAutoCommit(true);
             } catch (SQLException message) {
                 logger.error(message.getMessage());
-                throw new FoodLoadingException(message.getMessage());
+                throw new FoodDataLoadFailureException(message.getMessage());
             }
         }
     }
@@ -210,7 +209,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
             preparedStatement.executeUpdate();
         } catch (SQLException message) {
             logger.error(message.getMessage());
-            throw new FoodLoadingException(message.getMessage());
+            throw new FoodDataLoadFailureException(message.getMessage());
         }
     }
 
@@ -239,7 +238,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
             return restaurants;
         } catch (SQLException message) {
             logger.error(message.getMessage());
-            throw new FoodLoadingException(message.getMessage());
+            throw new FoodDataLoadFailureException(message.getMessage());
         }
     }
 
@@ -258,12 +257,11 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
             final ResultSet resultSet = preparedStatement.executeQuery();
 
             resultSet.next();
-            final int foodQuantity = resultSet.getInt(1);
 
-            return foodQuantity;
+            return resultSet.getInt(1);
         } catch (SQLException message) {
             logger.error(message.getMessage());
-            throw new CartUpdateException(message.getMessage());
+            throw new FoodCountAccessException(message.getMessage());
         }
     }
 

@@ -13,7 +13,10 @@
         <option value="$PROJECT_DIR$/authentication/pom.xml" />
         <option value="$PROJECT_DIR$/cart/pom.xml" />
         <option value="$PROJECT_DIR$/common/pom.xml" />
+        <option value="$PROJECT_DIR$/database/customer/pom.xml" />
+        <option value="$PROJECT_DIR$/dependency-module/pom.xml" />
         <option value="$PROJECT_DIR$/src/pom.xml" />
+        <option value="$PROJECT_DIR$/user-action/pom.xml" />
       </set>
     </option>
   </component>

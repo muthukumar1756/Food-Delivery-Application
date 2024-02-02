@@ -65,11 +65,10 @@ public class RestaurantServiceImpl implements RestaurantService {
 
             if (food.getType().equals(FoodType.NONVEG)) {
                 restaurant.createNonVegMenuCard(food);
-                restaurant.createMenuCard(food);
             } else {
                 restaurant.createVegMenuCard(food);
-                restaurant.createMenuCard(food);
             }
+            restaurant.createMenuCard(food);
         }
     }
 

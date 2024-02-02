@@ -3,17 +3,17 @@ package org.swiggy.datahandler.impl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.swiggy.exception.UserCreationException;
-import org.swiggy.exception.UserNotFoundException;
-import org.swiggy.exception.UserUpdateException;
-import org.swiggy.datahandler.UserDataHandler;
-import org.swiggy.connection.DataBaseConnection;
-import org.swiggy.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.swiggy.exception.UserDataLoadFailureException;
+import org.swiggy.exception.UserDataNotFoundException;
+import org.swiggy.exception.UserDataUpdateFailureException;
+import org.swiggy.datahandler.UserDataHandler;
+import org.swiggy.connection.DataBaseConnection;
+import org.swiggy.model.User;
 
 /**
  * <p>
@@ -60,7 +60,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
         final String query = """
                 insert into users (name, phone_number, email_id, password) values (?, ?, ?, ?) returning id""";
 
-        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, user.getName());
             preparedStatement.setString(2, user.getPhoneNumber());
             preparedStatement.setString(3, user.getEmailId());
@@ -68,14 +68,14 @@ public class UserDataHandlerImpl implements UserDataHandler {
             final ResultSet resultSet = preparedStatement.executeQuery();
 
             resultSet.next();
-            final int user_id = resultSet.getInt(1);
+            final int userId = resultSet.getInt(1);
 
-            user.setId(user_id);
+            user.setId(userId);
 
             return true;
         } catch (SQLException message) {
             logger.error(message.getMessage());
-            throw new UserCreationException(message.getMessage());
+            throw new UserDataLoadFailureException(message.getMessage());
         }
     }
 
@@ -90,7 +90,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
         final String query = """
                 select id, name, phone_number, email_id, password from users where phone_Number = ? and password = ?""";
 
-        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, phoneNumber);
             preparedStatement.setString(2, password);
             final ResultSet resultSet = preparedStatement.executeQuery();
@@ -108,7 +108,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
             }
         } catch (SQLException message) {
             logger.error(message.getMessage());
-            throw new UserNotFoundException(message.getMessage());
+            throw new UserDataNotFoundException(message.getMessage());
         }
     }
 
@@ -123,7 +123,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
     public void updateUser(final User user, final String type, final String userData) {
         final String query = String.join("", "update users set ", type, " = ? where id = ?");
 
-        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             final int userId = user.getId();
 
             preparedStatement.setString(1, userData);
@@ -131,7 +131,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
             preparedStatement.executeUpdate();
         } catch (SQLException message) {
             logger.error(message.getMessage());
-            throw new UserUpdateException(message.getMessage());
+            throw new UserDataUpdateFailureException(message.getMessage());
         }
     }
 }

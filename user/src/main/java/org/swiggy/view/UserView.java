@@ -16,7 +16,7 @@ import org.swiggy.UserDataValidator;
  * @author Muthu kumar V
  * @version 1.0
  */
-public class UserView extends CommonView{
+public class UserView extends CommonView {
 
     private static UserView userView;
 
@@ -217,7 +217,7 @@ public class UserView extends CommonView{
 
         switch (userChoice) {
             case 1:
-                RestaurantView.getInstance().displayRestaurants(user);
+                RestaurantDisplayView.getInstance().displayRestaurants(user);
                 break;
             case 2:
                 updateUser(user);

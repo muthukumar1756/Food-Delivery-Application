@@ -5,12 +5,16 @@
     <file url="file://$PROJECT_DIR$/authentication/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cart/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cart/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/database/customer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/database/customer/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/database/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/database/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/launcher/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/launcher/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dependency-module/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dependency-module/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/exception/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/exception/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/initiator/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/initiator/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/restaurant/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/restaurant/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shared-module/src/main/java" charset="UTF-8" />
@@ -19,10 +23,10 @@
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-action/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-action/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/user/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/user/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/useraction/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/useraction/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/validator/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/validator/src/main/resources" charset="UTF-8" />
   </component>

@@ -51,11 +51,11 @@ public class Restaurant {
         return id;
     }
 
-    public List<Food> getVegMenuCard(){
+    public List<Food> getVegMenucard(){
         return vegMenuCard;
     }
 
-    public List<Food> getNonVegMenuCard(){
+    public List<Food> getNonVegMenucard(){
         return nonVegMenuCard;
     }
 

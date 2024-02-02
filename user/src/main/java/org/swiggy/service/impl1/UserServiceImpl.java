@@ -68,14 +68,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getUser(final String phoneNumber, final String password) {
-            final User currentUser = users.get(phoneNumber);
-            final String currentUserPassword = currentUser.getPassword();
+        final User currentUser = users.get(phoneNumber);
+        final String currentUserPassword = currentUser.getPassword();
 
-            if (password.equals(currentUserPassword)) {
-                return currentUser;
-            } else {
-                return null;
-            }
+        if (password.equals(currentUserPassword)) {
+            return currentUser;
+        } else {
+            return null;
+        }
     }
 
     /**

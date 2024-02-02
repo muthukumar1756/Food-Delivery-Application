@@ -1,8 +1,5 @@
 package org.swiggy;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * <p>
  * Validates the input given by the users.

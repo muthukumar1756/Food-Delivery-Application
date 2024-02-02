@@ -1,7 +1,7 @@
 package org.swiggy.initializer;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -10,8 +10,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.swiggy.controller.RestaurantController;
-import org.swiggy.exception.FileAccessException;
-import org.swiggy.exception.FoodLoadingException;
+import org.swiggy.exception.RestaurantFileAccessException;
+import org.swiggy.exception.FoodDataLoadFailureException;
 import org.swiggy.model.Food;
 import org.swiggy.model.FoodType;
 import org.swiggy.model.Restaurant;
@@ -30,13 +30,10 @@ public class RestaurantInitializer {
 
     private final Logger logger;
     private final RestaurantController restaurantController;
-    private final String restaurantsPath;
 
     private RestaurantInitializer() {
         logger = LogManager.getLogger(RestaurantInitializer.class);
         restaurantController = RestaurantController.getInstance();
-        System.setProperty("RESTAURANTPATH", "D:\\java\\Projects java\\FoodDeliveryApp\\Restaurants\\");
-        restaurantsPath = System.getProperty("RESTAURANTPATH");
     }
 
     /**
@@ -60,13 +57,11 @@ public class RestaurantInitializer {
      * </p>
      */
     public void loadRestaurants() {
-        final String path = String.join("", restaurantsPath, "Restaurants.properties");
-
-        try (final FileReader fileReader = new FileReader(path)) {
+        try (InputStream inputStream = ClassLoader.getSystemResourceAsStream("Restaurants.properties")) {
             final Properties properties = new Properties();
             final Map<Integer, Restaurant> restaurants = new HashMap<>();
 
-            properties.load(fileReader);
+            properties.load(inputStream);
 
             for (final Object key : properties.keySet()) {
                 final int id = Integer.parseInt((String) key);
@@ -81,7 +76,7 @@ public class RestaurantInitializer {
             }
         } catch (IOException message) {
             logger.error(message.getMessage());
-            throw new FileAccessException(message.getMessage());
+            throw new RestaurantFileAccessException(message.getMessage());
         }
     }
 
@@ -96,13 +91,12 @@ public class RestaurantInitializer {
         final Map<Food, Restaurant> menuCard = new HashMap<>();
 
         for (final Restaurant restaurant : restaurants.values()) {
-            final String restaurantPath = String.join("", restaurantsPath,
-                    restaurant.getName().toLowerCase(), ".properties");
+            final String restaurantPath = String.join("", restaurant.getName().toLowerCase(), ".properties");
 
-            try (final FileReader fileReader = new FileReader(restaurantPath)) {
+            try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(restaurantPath)) {
                 final Properties properties = new Properties();
 
-                properties.load(fileReader);
+                properties.load(inputStream);
 
                 for (final Object key : properties.keySet()) {
                     final String value = properties.getProperty(String.valueOf(key));
@@ -120,7 +114,7 @@ public class RestaurantInitializer {
                 }
             } catch (IOException message) {
                 logger.error(message.getMessage());
-                throw new FoodLoadingException(message.getMessage());
+                throw new FoodDataLoadFailureException(message.getMessage());
             }
         }
         restaurantController.loadMenuCard(menuCard);
