@@ -3,10 +3,10 @@ package org.swiggy.view;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import org.swiggy.PasswordHashGenerator;
 import org.swiggy.controller.UserController;
 import org.swiggy.model.User;
-import org.swiggy.model.PasswordGenerator;
-import org.swiggy.UserDataValidator;
+import org.swiggy.DataValidator;
 
 /**
  * <p>
@@ -19,15 +19,14 @@ import org.swiggy.UserDataValidator;
 public class UserView extends CommonView {
 
     private static UserView userView;
-
     private final Logger logger;
     private final UserController userController;
-    private final UserDataValidator userDataValidator;
+    private final DataValidator dataValidator;
 
     private UserView() {
         logger = LogManager.getLogger(UserView.class);
         userController = UserController.getInstance();
-        userDataValidator = UserDataValidator.getInstance();
+        dataValidator = DataValidator.getInstance();
     }
 
     /**
@@ -51,8 +50,11 @@ public class UserView extends CommonView {
      * </p>
      */
     public void displayMainMenu() {
-        logger.info("\n1.Signup\n2.Login\n3.Exit");
-        final int userChoice = getChoice();
+        logger.info("""
+                    1.Signup
+                    2.Login
+                    3.Exit""");
+        final int userChoice = getValue();
 
         switch (userChoice) {
             case 1:
@@ -79,8 +81,8 @@ public class UserView extends CommonView {
         logger.info("User Signup Or Enter * To Go Back");
         final User user = new User(getName(), getPhoneNumber(), getEmailId(), getPassword());
 
-        if (userController.createUser(user)) {
-            displayHomePageMenu(user);
+        if (userController.createUserProfile(user)) {
+            displayHomePageMenu(user.getId());
         } else {
             logger.warn("User Already Exists");
             displayMainMenu();
@@ -100,7 +102,7 @@ public class UserView extends CommonView {
 
         backOptionCheck(name);
 
-        if (!userDataValidator.validateUserName(name)) {
+        if (!dataValidator.validateUserName(name)) {
             logger.warn("Enter A Valid User Name");
             getName();
         }
@@ -121,7 +123,7 @@ public class UserView extends CommonView {
 
         backOptionCheck(phoneNumber);
 
-        if (!userDataValidator.validatePhoneNumber(phoneNumber)) {
+        if (!dataValidator.validatePhoneNumber(phoneNumber)) {
             logger.warn("Enter A Valid Phone Number");
             getPhoneNumber();
         }
@@ -142,7 +144,7 @@ public class UserView extends CommonView {
 
         backOptionCheck(emailId);
 
-        if (!userDataValidator.validateEmailId(emailId)) {
+        if (!dataValidator.validateEmailId(emailId)) {
             logger.warn("Enter A Valid EmailId");
             getEmailId();
         }
@@ -163,12 +165,12 @@ public class UserView extends CommonView {
 
         backOptionCheck(password);
 
-        if (!userDataValidator.validatePassword(password)) {
+        if (!dataValidator.validatePassword(password)) {
             logger.warn("Enter A Valid Password");
             getPassword();
         }
 
-        return PasswordGenerator.getInstance().hashPassword(password);
+        return PasswordHashGenerator.getInstance().hashPassword(password);
     }
 
     /**
@@ -194,10 +196,10 @@ public class UserView extends CommonView {
         final User currentUser = userController.getUser(phoneNumber, getPassword());
 
         if (null == currentUser) {
-            logger.warn("User Not Registered or Incorrect Password");
+            logger.warn("User Not Registered Or Incorrect Password");
             login();
         }
-        displayHomePageMenu(currentUser);
+        displayHomePageMenu(currentUser.getId());
     }
 
     /**
@@ -205,11 +207,16 @@ public class UserView extends CommonView {
      * Displays restaurants or allows the user to update their profile based on the users input.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
      */
-    public void displayHomePageMenu(final User user) {
-        logger.info("To Go Back Enter *\n1.Display Restaurants\n2.Edit User Profile\n3.Logout");
-        final int userChoice = getChoice();
+    public void displayHomePageMenu(final long userId) {
+        logger.info("""
+                To Go Back Enter *
+                1.Display Restaurants
+                2.Edit User Profile
+                3.View Orders
+                4.Logout""");
+        final int userChoice = getValue();
 
         if (-1 == userChoice) {
             displayMainMenu();
@@ -217,17 +224,21 @@ public class UserView extends CommonView {
 
         switch (userChoice) {
             case 1:
-                RestaurantDisplayView.getInstance().displayRestaurants(user);
+                RestaurantDisplayView.getInstance().displayRestaurants(userId);
                 break;
             case 2:
-                updateUser(user);
+                updateUserData(userId);
                 break;
             case 3:
+                OrderView.getInstance().displayOrders(userId);
+                displayHomePageMenu(userId);
+                break;
+            case 4:
                 displayMainMenu();
                 break;
             default:
                 logger.warn("Enter A Valid Option");
-                displayHomePageMenu(user);
+                displayHomePageMenu(userId);
         }
     }
 
@@ -236,10 +247,10 @@ public class UserView extends CommonView {
      * Displays the data of current user.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
      */
-    private void displayUserData(final User user) {
-        final User currentUser = userController.getUser(user.getPhoneNumber(), user.getPassword());
+    private void displayUserData(final long userId) {
+        final User currentUser = userController.getUserById(userId);
 
         logger.info("\nYour Current Data\n");
         logger.info(String.format("User Name : %s", currentUser.getName()));
@@ -252,35 +263,39 @@ public class UserView extends CommonView {
      * Updates the users information based on the chosen option.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
      */
-    private void updateUser(final User user) {
-        displayUserData(user);
-        logger.info("\n1.Update Name\n2.Update Phone Number\n3.Update EmailId\n4.Update Password");
-        final int choice = getChoice();
+    private void updateUserData(final long userId) {
+        displayUserData(userId);
+        logger.info("""
+                1.Update Name
+                2.Update Phone Number
+                3.Update EmailId
+                4.Update Password""");
+        final int choice = getValue();
 
         if (-1 == choice) {
-            displayHomePageMenu(user);
+            displayHomePageMenu(userId);
         }
 
         switch (choice) {
             case 1:
-                userController.updateUser(user, getName(), UserDataUpdateType.NAME);
+                userController.updateUserData(userId, getName(), UserDataUpdateType.NAME);
                 break;
             case 2:
-                userController.updateUser(user, getPhoneNumber(), UserDataUpdateType.PHONENUMBER);
+                userController.updateUserData(userId, getPhoneNumber(), UserDataUpdateType.PHONENUMBER);
                 break;
             case 3:
-                userController.updateUser(user, getEmailId(), UserDataUpdateType.EMAILID);
+                userController.updateUserData(userId, getEmailId(), UserDataUpdateType.EMAILID);
                 break;
             case 4:
-                userController.updateUser(user, getPassword(), UserDataUpdateType.PASSWORD );
+                userController.updateUserData(userId, getPassword(), UserDataUpdateType.PASSWORD );
                 break;
             default:
                 logger.warn("Enter A Valid Option");
-                updateUser(user);
+                updateUserData(userId);
         }
-        updateUser(user);
+        updateUserData(userId);
     }
 
     /**

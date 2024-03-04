@@ -7,17 +7,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.swiggy.exception.CartDataNotFoundException;
 import org.swiggy.exception.CartUpdateFailureException;
-import org.swiggy.exception.FoodDataLoadFailureException;
 import org.swiggy.datahandler.CartDataHandler;
 import org.swiggy.connection.DataBaseConnection;
 import org.swiggy.exception.RestaurantDataLoadFailureException;
-import org.swiggy.model.Food;
-import org.swiggy.model.FoodType;
+import org.swiggy.model.Cart;
 import org.swiggy.model.User;
 
 /**
@@ -58,71 +56,34 @@ public class CartDataHandlerImpl implements CartDataHandler {
     /**
      * {@inheritDoc}
      *
-     * @param food Represents the current {@link Food} selected by the user
-     * @param user Represents the current {@link User}
-     * @param quantity Represents the quantity of the food given by the current user
-     * @param restaurantId Represents the id of the current restaurant
+     * @param cart Represents the cart of the user
      * @return True if the food is added to the user cart, false otherwise
      */
     @Override
-    public boolean addFoodToCart(final Food food, final User user, final int quantity, final int restaurantId) {
-        try {
-            connection.setAutoCommit(false);
-            final String query = "insert into user_cart_mapping (food_id, quantity) values (?, ?) returning id";
+    public boolean addFoodToCart(final Cart cart) {
+
+        if (isCartEntryExist(cart.getUserId(), cart.getRestaurantId()) || isUserCartEmpty(cart.getUserId())) {
+            final String query = """
+            insert into cart (user_id, restaurant_id, food_id, quantity, total_amount) values
+            (?, ?, ?, ?, ?) returning id""";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-                preparedStatement.setInt(1, food.getFoodId());
-                preparedStatement.setInt(2, quantity);
+                preparedStatement.setLong(1, cart.getUserId());
+                preparedStatement.setLong(2, cart.getRestaurantId());
+                preparedStatement.setLong(3, cart.getFoodId());
+                preparedStatement.setInt(4, cart.getQuantity());
+                preparedStatement.setFloat(5, cart.getAmount());
                 final ResultSet resultSet = preparedStatement.executeQuery();
 
                 resultSet.next();
                 final int cartId = resultSet.getInt(1);
 
-                if (updateCart(user, cartId, restaurantId)) {
-                    connection.commit();
+                cart.setId(cartId);
 
-                    return true;
-                } else {
-                    connection.rollback();
-
-                    return false;
-                }
-            }
-        } catch (SQLException message) {
-            logger.error(message.getMessage());
-            throw new CartUpdateFailureException(message.getMessage());
-        } finally {
-            try {
-                connection.setAutoCommit(true);
+                return true;
             } catch (SQLException message) {
                 logger.error(message.getMessage());
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Maps the cart id with the user cart.
-     * </p>
-     *
-     * @param user Represents the current {@link User}
-     * @param cartId Represents the id of the current user cart
-     * @param restaurantId Represents the id of the selected restaurant
-     * @return True if the food is added to the user cart, false otherwise
-     */
-    private boolean updateCart(final User user, final int cartId, final int restaurantId) {
-        if (isCartEntryExist(user, restaurantId) || isUserCartEmpty(user)) {
-            final String query = "insert into user_cart (user_id, restaurant_id, cart_id) values (?, ?, ?)";
-
-            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-                preparedStatement.setInt(1, user.getId());
-                preparedStatement.setInt(2, restaurantId);
-                preparedStatement.setInt(3, cartId);
-
-                return 0 < preparedStatement.executeUpdate();
-            } catch (SQLException message) {
-                logger.error(message.getMessage());
-                throw new FoodDataLoadFailureException(message.getMessage());
+                throw new CartUpdateFailureException(message.getMessage());
             }
         }
 
@@ -134,16 +95,16 @@ public class CartDataHandlerImpl implements CartDataHandler {
      * Checks the user and the restaurant id is already has an entry.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @param restaurantId Represents the id of the selected restaurant
      * @return True if the user entry and restaurant is exist in cart, false otherwise
      */
-    private boolean isCartEntryExist(final User user, final int restaurantId) {
-        final String query = "select count(*) from user_cart where user_id = ? and restaurant_id = ?";
+    private boolean isCartEntryExist(final long userId, final long restaurantId) {
+        final String query = "select count(*) from cart where user_id = ? and restaurant_id = ? and status = 1";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, user.getId());
-            preparedStatement.setInt(2, restaurantId);
+            preparedStatement.setLong(1, userId);
+            preparedStatement.setLong(2, restaurantId);
             final ResultSet resultSet = preparedStatement.executeQuery();
 
             resultSet.next();
@@ -161,14 +122,14 @@ public class CartDataHandlerImpl implements CartDataHandler {
      * Checks the user has any entry in the cart.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @return True if the user entry is exist in cart, false otherwise
      */
-    private boolean isUserCartEmpty(final User user) {
-        final String query = "select count(*) from user_cart where user_id = ?";
+    private boolean isUserCartEmpty(final long userId) {
+        final String query = "select count(*) from cart where user_id = ? and status = 1";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, user.getId());
+            preparedStatement.setLong(1, userId);
             final ResultSet resultSet = preparedStatement.executeQuery();
 
             resultSet.next();
@@ -184,41 +145,34 @@ public class CartDataHandlerImpl implements CartDataHandler {
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @return The map having all the foods from the user cart
      */
     @Override
-    public Map<Food, Integer> getCart(final User user) {
+    public List<Cart> getCart(final long userId) {
         final String query = """
-                select f.id, f.name, f.rate, f.food_type, cm.quantity from food f
-                join user_cart_mapping cm on f.id = cm.food_id join user_cart uc on cm.id = uc.cart_id
-                join users u on uc.user_id = u.id where u.id = ?
-                """;
+                select c.id, f.name, r.name, c.quantity, c.total_amount from food f
+                join cart c on f.id = c.food_id
+                join restaurant r on c.restaurant_id = r.id
+                join users u on c.user_id = u.id where u.id = ? and c.status = 1""";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, user.getId());
+            preparedStatement.setLong(1, userId);
             final ResultSet resultSet = preparedStatement.executeQuery();
-            final Map<Food, Integer> userCart = new HashMap<>();
+            final List<Cart> cartList = new ArrayList<>();
 
             while (resultSet.next()) {
-                final int id = resultSet.getInt(1);
-                final String name = resultSet.getString(2);
-                final float rate = resultSet.getFloat(3);
-                final int foodType = resultSet.getInt(4);
-                final int quantity = resultSet.getInt(5);
+                final Cart cart = new Cart();
 
-                final Food food;
-
-                if (2 == foodType) {
-                    food = new Food(name, rate, FoodType.NONVEG, quantity);
-                } else {
-                    food = new Food(name, rate, FoodType.VEG, quantity);
-                }
-                food.setFoodId(id);
-                userCart.put(food, quantity);
+                cart.setId(resultSet.getLong(1));
+                cart.setFoodName(resultSet.getString(2));
+                cart.setRestaurantName(resultSet.getString(3));
+                cart.setQuantity(resultSet.getInt(4));
+                cart.setAmount(resultSet.getFloat(5));
+                cartList.add(cart);
             }
 
-          return userCart;
+          return cartList;
         } catch (SQLException message) {
             logger.error(message.getMessage());
             throw new CartDataNotFoundException(message.getMessage());
@@ -228,21 +182,15 @@ public class CartDataHandlerImpl implements CartDataHandler {
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
-     * @param food Represents the current {@link Food} selected by the user
+     * @param cartId Represents the id 0f the user cart
      * @return True if the food is removed,false otherwise
      */
     @Override
-    public boolean removeFood(final User user, final Food food) {
-        final String query = """
-                delete from user_cart_mapping where id in(
-                select cm.id from user_cart_mapping cm join food f on cm.food_id = f.id
-                join user_cart uc on cm.id = uc.cart_id join users u on uc.user_id = u.id
-                where u.id = ? and f.id = ?)""";
+    public boolean removeFood(final long cartId) {
+        final String query = "delete from cart c where c.id = ? and status = 1";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, user.getId());
-            preparedStatement.setInt(2, food.getFoodId());
+            preparedStatement.setLong(1, cartId);
 
             return 0 < preparedStatement.executeUpdate();
         } catch (SQLException message) {
@@ -254,15 +202,15 @@ public class CartDataHandlerImpl implements CartDataHandler {
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @return The true if the cart is cleared, false otherwise
      */
     @Override
-    public boolean clearCart(final User user) {
-        final String query = "delete from user_cart uc where user_id = ?";
+    public boolean clearCart(final long userId) {
+        final String query = "delete from cart where user_id = ? and status = 1";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, user.getId());
+            preparedStatement.setLong(1, userId);
 
             return 0 < preparedStatement.executeUpdate();
         } catch (SQLException message) {

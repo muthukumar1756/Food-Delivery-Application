@@ -1,7 +1,5 @@
 package org.swiggy.model;
 
-import java.util.Map;
-
 /**
  * <p>
  * Represents order entity with properties and methods.
@@ -12,32 +10,97 @@ import java.util.Map;
  */
 public class Order {
 
-    private int id;
-    private int userId;
-    private String address;
-    private float totalAmount;
-    private Map<Food, Integer> order;
+    private long id;
+    private long user_id;
+    private long cartId;
+    private long foodId;
+    private String foodName;
+    private long restaurantId;
+    private String restaurantName;
+    private int quantity;
+    private float amount;
+    private long addressId;
 
     public Order() {
-    }
-
-    public int getId() {
-        return id;
     }
 
     public void setId(final int id) {
         this.id = id;
     }
 
-    public void setAddress(final String address) {
-        this.address = address;
+    public void setRestaurantName(final String restaurantName) {
+        this.restaurantName = restaurantName;
     }
 
-    public void setUserId(final int userId) {
-        this.userId = userId;
+    public void setFoodName(final String foodName) {
+        this.foodName = foodName;
     }
 
-    public void storeOrders(final Map<Food, Integer> cart) {
-        order.putAll(cart);
+    public void setQuantity(final int quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setAmount(final float amount) {
+        this.amount = amount;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getRestaurantName() {
+        return restaurantName;
+    }
+
+    public String getFoodName() {
+        return foodName;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public float getAmount() {
+        return amount;
+    }
+
+    public long getCartId() {
+        return cartId;
+    }
+
+    public void setCartId(final long cartId) {
+        this.cartId = cartId;
+    }
+
+    public long getAddressId() {
+        return addressId;
+    }
+
+    public void setAddressId(final long addressId) {
+        this.addressId = addressId;
+    }
+
+    public long getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(final long user_id) {
+        this.user_id = user_id;
+    }
+
+    public long getRestaurantId() {
+        return restaurantId;
+    }
+
+    public void setRestaurantId(final long restaurantId) {
+        this.restaurantId = restaurantId;
+    }
+
+    public long getFoodId() {
+        return foodId;
+    }
+
+    public void setFoodId(final long foodId) {
+        this.foodId = foodId;
     }
 }

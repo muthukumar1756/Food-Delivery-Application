@@ -1,14 +1,11 @@
 package org.swiggy.view;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.swiggy.controller.CartController;
 import org.swiggy.model.Cart;
-import org.swiggy.model.Food;
 import org.swiggy.model.Restaurant;
 import org.swiggy.model.User;
 
@@ -23,12 +20,9 @@ import org.swiggy.model.User;
 public class CartView extends CommonView {
 
     private static CartView cartView;
-
     private final Logger logger;
     private final RestaurantDisplayView restaurantDisplayView;
     private final CartController cartController;
-
-    private float totalAmount;
 
     private CartView() {
         logger = LogManager.getLogger(CartView.class);
@@ -56,14 +50,23 @@ public class CartView extends CommonView {
      * Adds the selected food to the user cart.
      * </p>
      *
-     * @param food Represents the current {@link Food} selected by the user
-     * @param user Represents the current {@link User}
-     * @param quantity Represents the quantity of the {@link Food} given by the current user
-     * @param restaurantId Represents the id of the current restaurant
+     * @param cart Represents the cart of the user
      * @return True if the food is added to the user cart, false otherwise
      */
-    public boolean addFoodToCart(final Food food, final User user, final int quantity, final int restaurantId) {
-        return cartController.addFoodToCart(food, user, quantity, restaurantId);
+    public boolean addFoodToCart(final Cart cart) {
+        return cartController.addFoodToCart(cart);
+    }
+
+    /**
+     * <p>
+     * Gets all the items in the user cart.
+     * </p>
+     *
+     * @param userId Represents the id of the current {@link User}
+     * @return The cart list having list of cart items
+     */
+    public List<Cart> getCartList(final long userId) {
+        return cartController.getCart(userId);
     }
 
     /**
@@ -71,28 +74,24 @@ public class CartView extends CommonView {
      * Displays all the foods in the user cart.
      * </p>
      *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
+     * @param restaurantId Represents the id of the {@link Restaurant}
      */
-    public void displayCart(final Restaurant restaurant, final User user) {
-        final Map<Food, Integer> cart = cartController.getCart(user);
-        int index = 1;
+    public void displayCart(final long userId, final long restaurantId) {
+        final List<Cart> cart = getCartList(userId);
+        float totalAmount = 0;
 
-        logger.info("Items In Your Cart \n");
-        logger.info("ID | Name | Quantity | Rate | Category ");
+        logger.info("""
+                Items In Your Cart
+                ID | Food Name | Quantity | Rate | Restaurant Name""");
 
-        for(final Food food : cart.keySet()){
-            final int quantity = cart.get(food);
-            totalAmount += food.getRate() * quantity;
-
-            logger.info(String.format("%d %s %d %.2f %s", index, food.getFoodName(), quantity,
-                    food.getRate() * quantity, food.getType()));
-            ++index;
+        for(final Cart cartItem : cart) {
+            logger.info(String.format("%d %s %d %.2f %s", cart.indexOf(cartItem) + 1, cartItem.getFoodName(), cartItem.getQuantity(),
+                    cartItem.getAmount(), cartItem.getRestaurantName()));
+            totalAmount += cartItem.getAmount();
         }
         logger.info(String.format("Total Amount: RS %.2f \n", totalAmount));
-        totalAmount = 0;
-
-        displayCartMenu(restaurant, cart, user);
+        displayCartMenu(userId, restaurantId, cart);
     }
 
     /**
@@ -100,34 +99,38 @@ public class CartView extends CommonView {
      * Handles the users choice to place order or remove food from the user cart.
      * </p>
      *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
+     * @param userId Represents the id of current {@link User}
+     * @param restaurantId Represents the id of the {@link Restaurant}
      * @param cart Represents the {@link Cart} of the current user
-     * @param user Represents the current {@link User}
      */
-    private void displayCartMenu(final Restaurant restaurant, final Map<Food, Integer> cart, final User user) {
-        logger.info("1.Place Order\n2.Remove Item From Cart\n3.Clear All Item From The Cart\n4.To Go Back And Add More Food");
-        final int userChoice = getChoice();
+    public void displayCartMenu(final long userId, final long restaurantId, final List<Cart> cart) {
+        logger.info("""
+                1.Place Order
+                2.Remove Item From Cart
+                3.Clear All Item From Cart
+                4.Add More Food""");
+        final int userChoice = getValue();
 
         if (-1 == userChoice) {
-            restaurantDisplayView.addFoodOrPlaceOrder(restaurant, user);
+            restaurantDisplayView.addFoodOrPlaceOrder(userId, restaurantId);
         }
 
         switch (userChoice) {
             case 1:
-                OrderView.getInstance().placeOrder(restaurant, cart, user);
+                OrderView.getInstance().placeOrder(userId, restaurantId);
                 break;
             case 2:
-                removeFood(restaurant, cart, user);
+                removeFood(userId, restaurantId, cart);
                 break;
             case 3:
-                clearCart(user);
+                clearCart(userId);
                 break;
             case 4:
-                restaurantDisplayView.addFoodOrPlaceOrder(restaurant, user);
+                restaurantDisplayView.addFoodOrPlaceOrder(userId, restaurantId);
                 break;
             default:
                 logger.warn("Enter A Valid Option");
-                displayCartMenu(restaurant, cart, user);
+                displayCartMenu(userId, restaurantId, cart);
         }
     }
 
@@ -136,30 +139,29 @@ public class CartView extends CommonView {
      * Gets the users choice to remove the food from the user cart.
      * </p>
      *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
+     * @param userId Represents the id of current {@link User}
+     * @param restaurantId Represents the id of the {@link Restaurant}
      * @param cart Represents the {@link Cart} of the current user
-     * @param user Represents the current {@link User}
      */
-    private void removeFood(final Restaurant restaurant, final Map<Food, Integer> cart, final User user) {
+    private void removeFood(final long userId, final long restaurantId, final List<Cart> cart) {
         logger.info("Enter The Item Number To Remove");
-        final int itemNumber = getChoice();
+        final int itemNumber = getValue();
 
         if (-1 == itemNumber) {
-            displayCart(restaurant, user);
+            displayCartMenu(userId, restaurantId, cart);
         }
         final int selectedIndex = itemNumber - 1;
 
         if (selectedIndex >= 0 && selectedIndex < cart.size()) {
-            final List<Food> foodCart = new ArrayList<>(cart.keySet());
-            final Food removeFood = foodCart.get(selectedIndex);
+            final Cart cartItem = cart.get(selectedIndex);
 
-            if (cartController.removeFood(user, removeFood)) {
-                logger.info("The Item Is Removed");
+            if (cartController.removeFood(cartItem.getId())) {
+                    logger.info("The Item Is Removed");
             }
         } else {
             logger.warn("Enter The Valid Item Number");
         }
-        displayCart(restaurant, user);
+        displayCart(userId, restaurantId);
     }
 
     /**
@@ -167,19 +169,21 @@ public class CartView extends CommonView {
      * Handles the users choice to display restaurant or logout.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of current {@link User}
      */
-    public void displayRestaurantOrLogout(final User user) {
-        logger.info("1.Continue Food Ordering\n2.Logout");
-        final int userChoice = getChoice();
+    public void displayRestaurantsOrLogout(final long userId) {
+        logger.info("""
+                1.Continue Food Ordering
+                2.Logout""");
+        final int userChoice = getValue();
 
         if (-1 == userChoice) {
-            restaurantDisplayView.displayRestaurants(user);
+            restaurantDisplayView.displayRestaurants(userId);
         }
 
         switch (userChoice) {
             case 1:
-                restaurantDisplayView.displayRestaurants(user);
+                restaurantDisplayView.displayRestaurants(userId);
                 break;
             case 2:
                 logger.info("Your Account Is Logged Out");
@@ -187,7 +191,7 @@ public class CartView extends CommonView {
                 break;
             default:
                 logger.warn("Invalid Option");
-                displayRestaurantOrLogout(user);
+                displayRestaurantsOrLogout(userId);
         }
     }
 
@@ -196,12 +200,12 @@ public class CartView extends CommonView {
      * Removes all the food from the user cart.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
      */
-    public void clearCart(final User user) {
-        if (cartController.clearCart(user)) {
+    public void clearCart(final long userId) {
+        if (cartController.clearCart(userId)) {
             logger.info("Your Cart Is Empty");
         }
-        displayRestaurantOrLogout(user);
+        displayRestaurantsOrLogout(userId);
     }
 }

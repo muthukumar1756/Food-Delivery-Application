@@ -10,12 +10,14 @@ package org.swiggy.model;
  */
 public class Food {
 
-    private final String name;
-    private final float rate;
-    private final FoodType foodType;
-
-    private int id;
+    private long id;
+    private String name;
+    private float rate;
+    private FoodType foodType;
     private int foodQuantity;
+
+    public Food() {
+    }
 
     public Food(final String foodName, final float rate, final FoodType type, final int foodQuantity) {
         this.name = foodName;
@@ -28,11 +30,7 @@ public class Food {
         this.id = id;
     }
 
-    public void updateQuantity(int foodQuantity) {
-        this.foodQuantity = foodQuantity;
-    }
-
-    public int getFoodId() {
+    public long getFoodId() {
         return id;
     }
 
@@ -40,15 +38,31 @@ public class Food {
         return name;
     }
 
+    public void setFoodName(final String name) {
+        this.name = name;
+    }
+
     public float getRate() {
         return rate;
+    }
+
+    public void setFoodRate(final float rate) {
+        this.rate = rate;
     }
 
     public FoodType getType() {
         return foodType;
     }
 
+    public void setFoodType(final FoodType foodType) {
+        this.foodType = foodType;
+    }
+
     public int getFoodQuantity() {
         return foodQuantity;
+    }
+
+    public void setFoodQuantity(final int foodQuantity) {
+        this.foodQuantity = foodQuantity;
     }
 }

@@ -1,12 +1,14 @@
 package org.swiggy.service.impl1;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
 
 import org.swiggy.model.Food;
 import org.swiggy.model.FoodType;
 import org.swiggy.model.Restaurant;
+import org.swiggy.model.RestaurantDataUpdateType;
 import org.swiggy.service.RestaurantService;
 
 /**
@@ -20,10 +22,9 @@ import org.swiggy.service.RestaurantService;
 public class RestaurantServiceImpl implements RestaurantService {
 
     private static RestaurantService restaurantService;
+    private final List<Restaurant> restaurants = new ArrayList<>();
 
-    public final Map<Integer, Restaurant> restaurants = new HashMap<>();
-
-    private RestaurantServiceImpl () {
+    private RestaurantServiceImpl() {
     }
 
     /**
@@ -41,14 +42,36 @@ public class RestaurantServiceImpl implements RestaurantService {
         return restaurantService;
     }
 
+    @Override
+    public boolean createRestaurantProfile(Restaurant restaurant) {
+        return false;
+    }
+
+    @Override
+    public Restaurant getRestaurant(String phoneNumber, String password) {
+        return null;
+    }
+
+    @Override
+    public Restaurant getRestaurantById(long restaurantId) {
+        return null;
+    }
+
+    @Override
+    public void loadFoodData(Food food, long restaurantId) {
+    }
+
+    public void loadFood(Food food, int restaurantId) {
+    }
+
     /**
      * {@inheritDoc}
      *
      * @param restaurantMap Represents all the {@link Restaurant}
      */
     @Override
-    public boolean loadRestaurants(final Map<Integer, Restaurant> restaurantMap) {
-        restaurants.putAll(restaurantMap);
+    public boolean loadRestaurantsData(final List<Restaurant> restaurantMap) {
+        //restaurants.putAll(restaurantMap);
 
         return true;
     }
@@ -58,17 +81,10 @@ public class RestaurantServiceImpl implements RestaurantService {
      *
      * @param menuCard Contains the list of foods in the restaurant
      */
-    public void loadMenuCard(final Map<Food, Restaurant> menuCard) {
-        for (final Map.Entry<Food, Restaurant> restaurantFood : menuCard.entrySet()) {
+    public void loadMenuCardData(final Map<Food, Integer> menuCard) {
+        for (final Map.Entry<Food, Integer> restaurantFood : menuCard.entrySet()) {
             final Food food = restaurantFood.getKey();
-            final Restaurant restaurant = restaurantFood.getValue();
-
-            if (food.getType().equals(FoodType.NONVEG)) {
-                restaurant.createNonVegMenuCard(food);
-            } else {
-                restaurant.createVegMenuCard(food);
-            }
-            restaurant.createMenuCard(food);
+            final Restaurant restaurant = null;
         }
     }
 
@@ -78,8 +94,18 @@ public class RestaurantServiceImpl implements RestaurantService {
      * @return The map having all the restaurants
      */
     @Override
-    public Map<Integer, Restaurant> getRestaurants(){
+    public List<Restaurant> getRestaurants() {
         return restaurants;
+    }
+
+    @Override
+    public int getQuantity(long foodId) {
+        return 0;
+    }
+
+
+    public int getQuantity(long foodId, int quantity) {
+        return 0;
     }
 
     /**
@@ -89,7 +115,6 @@ public class RestaurantServiceImpl implements RestaurantService {
      * @param quantity Represents the quantity of the food given by the current user
      * @return Available quantity from the selected restaurant
      */
-    @Override
     public int getQuantity(final Food food, final int quantity) {
         return food.getFoodQuantity();
     }
@@ -97,11 +122,24 @@ public class RestaurantServiceImpl implements RestaurantService {
     /**
      * {@inheritDoc}
      *
-     * @param restaurant Represents the current {@link Restaurant}
+     * @param restaurantId Represents the current {@link Restaurant}
      * @return The menucard list
      */
     @Override
-    public List<Food> getMenuCard(final Restaurant restaurant) {
-        return restaurant.getMenuCard();
+    public List<Food> getMenuCard(final long restaurantId, final int foodType) {
+        return null;
+    }
+
+    @Override
+    public void updateRestaurantData(long restaurantId, String restaurantData, RestaurantDataUpdateType type) {
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param foodId Represents the id of the current {@link Food} selected by the user
+     */
+    @Override
+    public void removeFood(final long foodId) {
     }
 }

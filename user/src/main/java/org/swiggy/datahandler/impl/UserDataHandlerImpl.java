@@ -26,7 +26,6 @@ import org.swiggy.model.User;
 public class UserDataHandlerImpl implements UserDataHandler {
 
     private static UserDataHandler userDataHandler;
-
     private final Logger logger;
     private final Connection connection;
 
@@ -56,7 +55,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
      * @param user Represents the current {@link User}
      * @return True if user is created, false otherwise
      */
-    public boolean createUser(final User user) {
+    public boolean createUserProfile(final User user) {
         final String query = """
                 insert into users (name, phone_number, email_id, password) values (?, ?, ?, ?) returning id""";
 
@@ -68,9 +67,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
             final ResultSet resultSet = preparedStatement.executeQuery();
 
             resultSet.next();
-            final int userId = resultSet.getInt(1);
-
-            user.setId(userId);
+            user.setId(resultSet.getInt(1));
 
             return true;
         } catch (SQLException message) {
@@ -96,11 +93,13 @@ public class UserDataHandlerImpl implements UserDataHandler {
             final ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                final int userid = resultSet.getInt(1);
-                final User user = new User(resultSet.getString(2), resultSet.getString(3),
-                        resultSet.getString(4), resultSet.getString(5));
+                final User user = new User();
 
-                user.setId(userid);
+                user.setId(resultSet.getInt(1));
+                user.setName(resultSet.getString(2));
+                user.setPhoneNumber(resultSet.getString(3));
+                user.setEmailId(resultSet.getString(4));
+                user.setPassword(resultSet.getString(5));
 
                 return user;
             } else {
@@ -115,19 +114,51 @@ public class UserDataHandlerImpl implements UserDataHandler {
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current user
+     * @return The current user
+     */
+    @Override
+    public User getUserById(final long userId) {
+        final String query = """
+                select id, name, phone_number, email_id, password from users where id = ?""";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, userId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                final User user = new User();
+
+                user.setId(resultSet.getInt(1));
+                user.setName(resultSet.getString(2));
+                user.setPhoneNumber(resultSet.getString(3));
+                user.setEmailId(resultSet.getString(4));
+                user.setPassword(resultSet.getString(5));
+
+                return user;
+            } else {
+                return null;
+            }
+        } catch (SQLException message) {
+            logger.error(message.getMessage());
+            throw new UserDataNotFoundException(message.getMessage());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param userId Represents the id of current {@link User}
      * @param type Represents the type of data to be updated
      * @param userData Represents the value of data to be updated
      */
     @Override
-    public void updateUser(final User user, final String type, final String userData) {
+    public void updateUserProfile(final long userId, final String type, final String userData) {
         final String query = String.join("", "update users set ", type, " = ? where id = ?");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            final int userId = user.getId();
-
             preparedStatement.setString(1, userData);
-            preparedStatement.setInt(2, userId);
+            preparedStatement.setLong(2, userId);
             preparedStatement.executeUpdate();
         } catch (SQLException message) {
             logger.error(message.getMessage());

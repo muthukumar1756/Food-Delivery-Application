@@ -2,13 +2,16 @@ package org.swiggy.view;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.util.Map;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.swiggy.controller.OrderController;
-import org.swiggy.model.Food;
-import org.swiggy.model.Restaurant;
-import org.swiggy.model.User;
+import org.swiggy.model.Address;
 import org.swiggy.model.Cart;
+import org.swiggy.model.Order;
+import org.swiggy.model.User;
+import org.swiggy.model.Restaurant;
 
 /**
  * <p>
@@ -21,7 +24,6 @@ import org.swiggy.model.Cart;
 public class OrderView extends CommonView {
 
     private static OrderView orderView;
-
     private final Logger logger;
     private final CartView cartView;
     private final RestaurantDisplayView restaurantDisplayView;
@@ -41,7 +43,7 @@ public class OrderView extends CommonView {
      *
      * @return The order view object
      */
-    public static OrderView getInstance(){
+    public static OrderView getInstance() {
         if (null == orderView) {
             orderView = new OrderView();
         }
@@ -54,20 +56,75 @@ public class OrderView extends CommonView {
      * Handles the order placing by the user
      * </p>
      *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
-     * @param cart Represents the {@link Cart} of the current user
-     * @param user Represents the current {@link User}
+     * @param restaurantId Represents the id of the {@link Restaurant} selected by the user
+     * @param userId Represents the id of the current {@link User}
      */
-    public void placeOrder(final Restaurant restaurant, final Map<Food, Integer> cart, final User user) {
-        if (!cart.isEmpty()) {
-            final String userAddress = getDeliveryAddress(restaurant, user);
+    public void placeOrder(final long userId, final long restaurantId) {
+        final List<Cart> cartList = cartView.getCartList(userId);
 
-            if (orderController.placeOrder(user, cart)) {
-                logger.info(String.format("\nYour Order Is Placed..\nWill Shortly Delivered To This Address : %s", userAddress));
-                cartView.displayRestaurantOrLogout(user);
+        if (!cartList.isEmpty()) {
+            logger.info("Select Address\n1.From Previous Oder\n2.New Address");
+            long addressId = 0;
+            final int userChoice = getValue();
+
+            if (-1 == userChoice) {
+                cartView.displayCartMenu(userId, restaurantId, cartList);
+            }
+
+            switch (userChoice) {
+                case 1:
+                    addressId = displayAddress(userId);
+                    break;
+                case 2:
+                    addressId = getDeliveryAddress(userId);
+                    break;
+                default:
+                    logger.info("Enter A Valid Input");
+            }
+            final List<Order> orderList = new ArrayList<>();
+
+            for (final Cart cartItem : cartList) {
+                final Order order = new Order();
+
+                order.setCartId(cartItem.getId());
+                order.setUser_id(userId);
+                order.setAddressId(addressId);
+                orderList.add(order);
+            }
+
+            if (orderController.placeOrder(cartList, orderList)) {
+                logger.info("\nYour Order Is Placed..\nWill Shortly Delivered To Your Address");
+                cartView.displayRestaurantsOrLogout(userId);
             }
         } else {
-            handleEmptyCart(restaurant, cart, user);
+            handleEmptyCart(userId);
+        }
+    }
+
+    /**
+     * <p>
+     * Displays all the addresses of the user.
+     * </p>
+     *
+     * @param userId Represents the id of the current {@link User}
+     */
+    private long displayAddress(final long userId) {
+        final List<Address> addressList = orderController.getAddress(userId);
+
+        if (addressList.isEmpty()) {
+            logger.info("You Didn't Have Any Previous Order Addresses");
+
+            return getDeliveryAddress(userId);
+        } else {
+            for (final Address address : addressList) {
+                logger.info(String.format("%d %s %s %s %s %s", addressList.indexOf(address) + 1,
+                        address.getHouseNumber(), address.getStreetName(), address.getAreaName(), address.getCityName(),
+                        address.getPincode()));
+            }
+            logger.info("Enter The Delivery Address Id");
+            final int index = getValue() - 1;
+
+            return addressList.get(index).getId();
         }
     }
 
@@ -76,14 +133,16 @@ public class OrderView extends CommonView {
      * Gets the delivery address of the current user.
      * </p>
      *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
      * @return The address of the current user
      */
-    private String getDeliveryAddress(final Restaurant restaurant, final User user) {
-        logger.info("Enter Your Address");
-        logger.info("Enter Your Door Number");
-        final String doorNum = getInfo();
+    private long getDeliveryAddress(final long userId) {
+        final Address address = new Address();
+
+        logger.info("""
+                Fill Your Address
+                Enter Your House Number""");
+        final String houseNumber = getInfo();
 
         logger.info("Enter Your Street Name");
         final String streetName = getInfo();
@@ -94,15 +153,18 @@ public class OrderView extends CommonView {
         logger.info("Enter Your City Name");
         final String cityName = getInfo();
 
-        final String userAddress = String.join(" ", doorNum, streetName, areaName, cityName);
-        user.setAddress(userAddress);
+        logger.info("Enter Your Pin Code");
+        final String pinCode = getInfo();
 
-        if ("back".equals(doorNum) || "back".equals(streetName) || "back".equals(areaName) ||
-                "back".equals(cityName)) {
-            cartView.displayCart(restaurant, user);
-        }
+        address.setHouseNumber(houseNumber);
+        address.setStreetName(streetName);
+        address.setAreaName(areaName);
+        address.setCityName(cityName);
+        address.setPincode(pinCode);
+        address.setUserId(userId);
+        orderController.addAddress(address);
 
-        return userAddress;
+        return address.getId();
     }
 
     /**
@@ -110,21 +172,23 @@ public class OrderView extends CommonView {
      * Handles the user cart if it has no foods.
      * </p>
      *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
-     * @param cart Represents the {@link Cart} of the current user
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
      */
-    private void handleEmptyCart(final Restaurant restaurant, final Map<Food, Integer> cart, final User user) {
-        logger.info("Your Order Is Empty\nPlease Select A option From Below:\n1.To Order Foods\n2.Logout");
-        final int userChoice = getChoice();
+    private void handleEmptyCart(final long userId) {
+        logger.info("""
+                Your Order Is Empty
+                Please Select A option From Below:
+                1.To Order Foods
+                2.Logout""");
+        final int userChoice = getValue();
 
-        if (- 1 == userChoice) {
-            restaurantDisplayView.addFoodOrPlaceOrder(restaurant, user);
+        if (-1 == userChoice) {
+            restaurantDisplayView.displayRestaurants(userId);
         }
 
         switch (userChoice) {
             case 1:
-                restaurantDisplayView.displayRestaurants(user);
+                restaurantDisplayView.displayRestaurants(userId);
                 break;
             case 2:
                 logger.info("Your Account Is Logged Out");
@@ -132,7 +196,31 @@ public class OrderView extends CommonView {
                 break;
             default:
                 logger.warn("Enter A Valid Option");
-                placeOrder(restaurant, cart, user);
+                handleEmptyCart(userId);
+        }
+    }
+
+    /**
+     * <p>
+     * Displays the orders placed by the user.
+     * </p>
+     *
+     * @param userId Represents the id of the current {@link User}
+     */
+    public void displayOrders(final long userId) {
+        final List<Order> orders = orderController.getOrders(userId);
+
+        if (orders.isEmpty()) {
+            logger.info("No Placed Orders");
+        } else {
+            logger.info("""
+                    Your Orders
+                    Name| Food | Quantity | Amount""");
+
+            for (final Order order : orders) {
+                logger.info(String.format("%s %s %d %.2f", order.getRestaurantName(), order.getFoodName(), order.getQuantity(),
+                        order.getAmount()));
+            }
         }
     }
 }

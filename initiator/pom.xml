@@ -11,17 +11,40 @@
     </parent>
 
     <artifactId>initiator</artifactId>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>user</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>restaurant</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.swiggy</groupId>
+            <artifactId>shared-module</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Import-Package>org.swiggy.user*, org.swiggy.restaurant*</Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

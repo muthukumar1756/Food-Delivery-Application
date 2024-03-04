@@ -16,10 +16,9 @@ import java.util.Scanner;
 public class CommonView {
 
     private static Scanner scanner;
-
     private final Logger logger = LogManager.getLogger(CommonView.class);
 
-    CommonView() {
+    protected CommonView() {
     }
 
     /**
@@ -44,7 +43,7 @@ public class CommonView {
      *
      * @return The choice of the user
      */
-    public int getChoice(){
+    public int getValue() {
         final String choice = getScannerInstance().nextLine().trim();
 
         if (isBackButton(choice)) {
@@ -55,7 +54,7 @@ public class CommonView {
             } catch (NumberFormatException message) {
                 logger.warn("Enter Valid Input");
 
-                return getChoice();
+                return getValue();
             }
         }
     }

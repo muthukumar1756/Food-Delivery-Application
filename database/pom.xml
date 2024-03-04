@@ -11,23 +11,41 @@
     </parent>
 
     <artifactId>database</artifactId>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.7.1</version>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>exception</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>shared-module</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>org.swiggy.database*</Export-Package>
+                        <Import-Package>org.postgresql*, org.swiggy.exception*,
+                            org.swiggy.shared-module*</Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

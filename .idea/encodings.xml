@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/authentication/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/authentication/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Authentication/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Authentication/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cart/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cart/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/database/customer/src/main/java" charset="UTF-8" />
@@ -23,6 +23,8 @@
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/swiggy-feature/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/swiggy-feature/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/user-action/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/user-action/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/user/src/main/java" charset="UTF-8" />

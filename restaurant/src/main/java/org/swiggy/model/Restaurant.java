@@ -1,8 +1,5 @@
 package org.swiggy.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * <p>
  * Represents restaurant entity with properties and methods.
@@ -13,53 +10,59 @@ import java.util.List;
  */
 public class Restaurant {
 
-    private final String name;
-    private final List<Food> menuCard;
-    private final List<Food> vegMenuCard;
-    private final List<Food> nonVegMenuCard;
-
+    private String name;
+    private String phoneNumber;
+    private String password;
+    private String emailId;
     private int id;
 
-    public Restaurant(final String name) {
+    public Restaurant() {
+    }
+
+    public Restaurant(final String name, final String phoneNumber, final String emailId, final String password) {
         this.name = name;
-        this.menuCard = new ArrayList<>();
-        this.vegMenuCard = new ArrayList<>();
-        this.nonVegMenuCard = new ArrayList<>();
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.emailId = emailId;
     }
 
     public void setRestaurantId(final int id) {
         this.id = id;
     }
 
-    public void createVegMenuCard(final Food food) {
-        vegMenuCard.add(food);
-    }
-
-    public void createNonVegMenuCard(final Food food) {
-        nonVegMenuCard.add(food);
-    }
-
-    public void createMenuCard(final Food food) {
-        menuCard.add(food);
-    }
-
     public String getName() {
         return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
     }
 
     public int getRestaurantId() {
         return id;
     }
 
-    public List<Food> getVegMenucard(){
-        return vegMenuCard;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public List<Food> getNonVegMenucard(){
-        return nonVegMenuCard;
+    public void setPhoneNumber(final String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public List<Food> getMenuCard(){
-        return menuCard;
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
+    }
+
+    public String getEmailId() {
+        return emailId;
+    }
+
+    public void setEmailId(final String emailId) {
+        this.emailId = emailId;
     }
 }

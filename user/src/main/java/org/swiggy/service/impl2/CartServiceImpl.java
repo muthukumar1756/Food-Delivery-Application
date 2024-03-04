@@ -2,11 +2,11 @@ package org.swiggy.service.impl2;
 
 import org.swiggy.datahandler.CartDataHandler;
 import org.swiggy.datahandler.impl.CartDataHandlerImpl;
-import org.swiggy.model.Food;
+import org.swiggy.model.Cart;
 import org.swiggy.model.User;
 import org.swiggy.service.CartService;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -19,7 +19,6 @@ import java.util.Map;
 public class CartServiceImpl implements CartService{
 
     private static CartService cartService;
-
     private final CartDataHandler cartDataHandler;
 
     private CartServiceImpl() {
@@ -44,48 +43,44 @@ public class CartServiceImpl implements CartService{
     /**
      * {@inheritDoc}
      *
-     * @param food Represents the current {@link Food} selected by the user
-     * @param user Represents the current {@link User}
-     * @param quantity Represents the quantity of the {@link Food} given by the current user
-     * @param restaurantId Represents the id of the current restaurant
+     * @param cart Represents the cart of the user
      * @return True if the food is added to the user cart, false otherwise
      */
     @Override
-    public boolean addFoodToCart(final Food food, final User user, final int quantity, final int restaurantId) {
-      return cartDataHandler.addFoodToCart(food, user, quantity, restaurantId);
+    public boolean addFoodToCart(final Cart cart) {
+        return cartDataHandler.addFoodToCart(cart);
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @return The map having all the foods from the user cart
      */
     @Override
-    public Map<Food, Integer> getCart(final User user) {
-        return cartDataHandler.getCart(user);
+    public List<Cart> getCart(final long userId) {
+        return cartDataHandler.getCart(userId);
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
-     * @param food Represents the current {@link Food} selected by the user
+     * @param cartId Represents the id 0f the user cart
      * @return True if the food is removed,false otherwise
      */
     @Override
-    public boolean removeFood(final User user, final Food food) {
-        return cartDataHandler.removeFood(user, food);
+    public boolean removeFood(final long cartId) {
+        return cartDataHandler.removeFood(cartId);
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @return The true if the cart is cleared, false otherwise
      */
     @Override
-    public boolean clearCart(final User user) {
-        return cartDataHandler.clearCart(user);
+    public boolean clearCart(final long userId) {
+        return cartDataHandler.clearCart(userId);
     }
 }

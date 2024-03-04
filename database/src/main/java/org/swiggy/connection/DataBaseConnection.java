@@ -23,7 +23,7 @@ public class DataBaseConnection {
 
     private static Connection connection;
 
-    private DataBaseConnection(){
+    private DataBaseConnection() {
     }
 
     /**

@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.swiggy.controller.CartController;
+import org.swiggy.model.Cart;
 import org.swiggy.model.Food;
 import org.swiggy.model.Restaurant;
 import org.swiggy.model.User;
@@ -13,7 +14,6 @@ import org.swiggy.model.User;
 public class RestaurantDisplayView extends CommonView {
 
     private static RestaurantDisplayView restaurantDisplayView;
-
     private final RestaurantView restaurantView;
     private final Logger logger;
 
@@ -42,11 +42,18 @@ public class RestaurantDisplayView extends CommonView {
      * Displays the available restaurants.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
      */
-    public void displayRestaurants(final User user) {
-        restaurantView.displayRestaurants();
-        GetRestaurantAndMenucard(user);
+    public void displayRestaurants(final long userId) {
+        logger.info("""
+                    To Go Back Enter *
+                    Available Restaurants In Your Area:""");
+        final List<Restaurant> restaurantList = restaurantView.getRestaurants();
+
+        for (final Restaurant restaurant : restaurantList) {
+            logger.info(String.format("%d %s", restaurantList.indexOf(restaurant) + 1, restaurant.getName()));
+        }
+        getRestaurant(userId, restaurantList);
     }
 
     /**
@@ -54,107 +61,81 @@ public class RestaurantDisplayView extends CommonView {
      * Gets the selection of a restaurant by the user.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
      */
-    private void GetRestaurantAndMenucard(final User user) {
-        final int restaurantNumber = getChoice();
+    private void getRestaurant(final long userId, final List<Restaurant> restaurantList) {
+        final int restaurantNumber = getValue();
 
         if (-1 == restaurantNumber) {
-            UserView.getInstance().displayHomePageMenu(user);
+            UserView.getInstance().displayHomePageMenu(userId);
         }
-        final Restaurant restaurant = restaurantView.getRestaurant(restaurantNumber);
 
-        if (null == restaurant) {
-            logger.warn("Select A Valid Restaurant Id");
-            displayRestaurants(user);
-        }
-        final List<Food> menucard = restaurantView.getMenucard(restaurant);
+        if (0 <= restaurantNumber && restaurantList.size() >= restaurantNumber) {
+            final Restaurant restaurant = restaurantList.get(restaurantNumber - 1);
 
-        if (null == menucard) {
-            logger.warn("The Chosen Restaurant Currently Doesn't Have Any Available Items");
-            displayRestaurants(user);
+            if (null == restaurant) {
+                logger.warn("Select A Valid Restaurant Id");
+                displayRestaurants(userId);
+            }
+
+            getMenucard(userId, restaurant.getRestaurantId());
+        } else {
+            logger.warn("Select The Valid Option");
+            displayRestaurants(userId);
         }
-        displayMenucard(restaurant, user, menucard);
+
     }
 
     /**
      * <p>
-     * Displays the menucard of the selected restaurant.
+     * Gets the menucard according to the user chosen food category.
      * </p>
      *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
-     * @param user Represents the current {@link User}
-     * @param menucard Represents the menucard of the selected restaurant
+     * @param userId Represents the id of the current {@link User}
+     * @param restaurantId Represents the id of the current {@link Restaurant}
      */
-    public void displayMenucard(final Restaurant restaurant, final User user, final List<Food> menucard) {
-        restaurantView.displayMenucard(menucard);
-        selectFilter(restaurant, user, menucard);
-    }
+    private void getMenucard(final long userId, final long restaurantId) {
+        logger.info("""
+                    Select Food Type
+                    1.VEG
+                    2.NONVEG
+                    3.VEG & NONVEG""");
+        final int foodType = getValue();
 
-    /**
-     * <p>
-     * Displays and handles the users choice to filter foods or continue with food ordering.
-     * </p>
-     *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
-     * @param user Represents the current {@link User}
-     * @param menucard Represents the menucard of the selected restaurant
-     */
-    private void selectFilter(final Restaurant restaurant, final User user, final List<Food> menucard) {
-        logger.info("\n1.To Apply Filter\n2.To Continue Food Ordering\n3.To Select Other Restaurant");
-        final int userChoice = getChoice();
-
-        if (-1 == userChoice) {
-            displayRestaurants(user);
+        if (-1 == foodType) {
+            displayRestaurants(userId);
         }
 
-        switch (userChoice) {
-            case 1:
-                selectFoodFilter(restaurant, user, menucard);
-                break;
-            case 2:
-                selectFood(restaurant, user, menucard);
-                break;
-            case 3:
-                displayRestaurants(user);
-                break;
-            default:
-                logger.warn("Invalid Option Try Again\n");
-                displayMenucard(restaurant, user, menucard);
+        if (0 < foodType && 4 > foodType) {
+            final List<Food> menucard = restaurantView.getMenucard(restaurantId, foodType);
+
+            if (null == menucard) {
+                logger.warn("The Chosen Restaurant Currently Doesn't Have Any Available Items");
+                displayRestaurants(userId);
+            }
+            displayFoods(menucard);
+            selectFood(userId, restaurantId, menucard);
+        } else {
+            logger.warn("Enter A Valid Option");
+            getMenucard(userId, restaurantId);
         }
     }
 
     /**
      * <p>
-     * Displays and handles the users choice to get veg or nonveg food.
+     * Displays the menucard of the restaurant selected by the user.
      * </p>
      *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
-     * @param user Represents the current {@link User}
-     * @param menucard Represents the menucard of the selected restaurant
+     * @param menucard Represents the menucard from the selected restaurant
      */
-    private void selectFoodFilter(final Restaurant restaurant, final User user, final List<Food> menucard) {
-        logger.info("\nFilter Type\n1.Veg\n2.Non-Veg");
-        final int filterTypeOption = getChoice();
+    public void displayFoods(final List<Food> menucard) {
+        logger.info("""
+                    Available Items:
+                    ID | Name | Rate | Category""");
 
-        if (-1 == filterTypeOption) {
-            displayMenucard(restaurant, user, menucard);
-        }
-
-        switch (filterTypeOption) {
-            case 1:
-                final List<Food> vegMenucard = restaurantView.getVegMenucard(restaurant);
-                restaurantView.displayMenucard(vegMenucard);
-                selectFood(restaurant, user, vegMenucard);
-                break;
-            case 2:
-                final List<Food> nonVegMenucard = restaurantView.getNonVegMenucard(restaurant);
-                restaurantView.displayMenucard(nonVegMenucard);
-                selectFood(restaurant, user, nonVegMenucard);
-                break;
-            default:
-                logger.warn("Enter valid option");
-                selectFoodFilter(restaurant, user, menucard);
+        for (final Food food : menucard) {
+            logger.info(String.format("%d %s %.2f %s", menucard.indexOf(food) + 1,
+                    food.getFoodName(), food.getRate(), food.getType()));
         }
     }
 
@@ -163,29 +144,29 @@ public class RestaurantDisplayView extends CommonView {
      * Gets the selection of food by the user.
      * </p>
      *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
+     * @param restaurantId Represents the id of the current {@link Restaurant}
      * @param menucard Represents the menucard of the selected restaurant
      */
-    private void selectFood(final Restaurant restaurant, final User user, final List<Food> menucard) {
+    private void selectFood(final long userId, final long restaurantId, final List<Food> menucard) {
         logger.info("Enter FoodId To Add To Cart");
-        final int selectedIndex = getChoice();
+        final int selectedIndex = getValue();
 
         if (-1 == selectedIndex) {
-            displayMenucard(restaurant, user, menucard);
+            getMenucard(userId, restaurantId);
         }
         final int foodNumber = selectedIndex - 1;
 
-        if (foodNumber >= 0 && foodNumber <= menucard.size()) {
+        if (0 <= foodNumber && menucard.size() >= foodNumber) {
             final Food selectedFood = menucard.get(foodNumber);
-            final int quantity = getQuantity(user, selectedFood);
+            final int quantity = getQuantity(userId, selectedFood.getFoodId());
 
-            addFoodToCart(user, restaurant, selectedFood, quantity);
+            addFoodToCart(userId, restaurantId, selectedFood, quantity);
         } else {
             logger.warn("Enter A Valid Option From The Menucard");
-            displayMenucard(restaurant, user, menucard);
+            selectFood(userId, restaurantId, menucard);
         }
-        addFoodOrPlaceOrder(restaurant, user);
+        addFoodOrPlaceOrder(userId, restaurantId);
     }
 
     /**
@@ -193,14 +174,47 @@ public class RestaurantDisplayView extends CommonView {
      * Adds the selected food to the user cart.
      * </p>
      *
-     * @param user Represents the current {@link User}
-     * @param restaurant Represents the {@link Restaurant} selected by the user
+     * @param userId Represents the id of the current {@link User}
+     * @param restaurantId Represents the id of the {@link Restaurant}
      * @param food Represents the {@link Food} selected by user
      * @param quantity Represents the quantity of selected food by the user
      */
-    private void addFoodToCart(final User user, final Restaurant restaurant, final Food food, final int quantity) {
-        if (!CartView.getInstance().addFoodToCart(food, user, quantity, restaurant.getRestaurantId())) {
-            handleFoodsFromVariousRestaurants(user, restaurant, food, quantity);
+    private void addFoodToCart(final long userId, final long restaurantId, final Food food, final int quantity) {
+        final Cart cart = new Cart();
+
+        cart.setUserId(userId);
+        cart.setRestaurantId(restaurantId);
+        cart.setFoodId(food.getFoodId());
+        cart.setQuantity(quantity);
+        cart.setAmount(food.getRate() * quantity);
+
+        if (!CartView.getInstance().addFoodToCart(cart)) {
+            handleFoodsFromVariousRestaurants(userId, restaurantId, food, quantity);
+        }
+    }
+
+    /**
+     * <p>
+     * Handles the condition of user cart having foods from single restaurant.
+     * </p>
+     *
+     * @param userId Represents the id of the current {@link User}
+     * @param restaurantId Represents the id of the {@link Restaurant}
+     * @param food Represents the {@link Food} selected by user
+     * @param quantity Represents the quantity of selected food by the user
+     */
+    private void handleFoodsFromVariousRestaurants(final long userId, final long restaurantId, final Food food,
+                                                   final int quantity) {
+        logger.warn("""
+                    Your Cart Contains Items From Other Restaurant!.
+                    Would You Like To Reset Your Cart For Adding Items From This Restaurant ?
+                    1 To Reset Cart
+                    2 To Cancel""");
+        final int userChoice = getValue();
+
+        if (1 == (userChoice)) {
+            CartController.getInstance().clearCart(userId);
+            addFoodToCart(userId, restaurantId, food, quantity);
         }
     }
 
@@ -209,22 +223,22 @@ public class RestaurantDisplayView extends CommonView {
      * Gets the quantity of selected food by the user.
      * </p>
      *
-     * @param user Represents the current {@link User}
-     * @param food Represents the {@link Food} selected by user
+     * @param userId Represents the id of the current {@link User}
+     * @param foodId Represents the id of the current {@link Food} selected by user
      */
-    private int getQuantity(final User user, final Food food) {
+    private int getQuantity(final long userId, final long foodId) {
         logger.info("Enter The Quantity");
-        final int quantity = getChoice();
+        final int quantity = getValue();
 
         if (-1 == quantity) {
-            displayRestaurants(user);
+            displayRestaurants(userId);
         }
-        final int foodQuantity = restaurantView.getQuantity(food, quantity);
+        final int foodQuantity = restaurantView.getQuantity(foodId);
         final int availableQuantity = foodQuantity - quantity;
 
         if (0 > availableQuantity) {
             logger.info("The Entered Quantity Is Not Available");
-            getQuantity(user, food);
+            getQuantity(userId, foodId);
         }
 
         return quantity;
@@ -232,55 +246,33 @@ public class RestaurantDisplayView extends CommonView {
 
     /**
      * <p>
-     * Handles the condition of user cart having foods from single restaurant.
-     * </p>
-     *
-     * @param user Represents the current {@link User}
-     * @param restaurant Represents the {@link Restaurant} selected by the user
-     * @param food Represents the {@link Food} selected by user
-     * @param quantity Represents the quantity of selected food by the user
-     */
-    private void handleFoodsFromVariousRestaurants(final User user, final Restaurant restaurant, final Food food,
-                                                   final int quantity) {
-        logger.warn("""
-                    Your Cart Contains Items From Other Restaurant!.
-                    Would You Like To Reset Your Cart For Adding Items From This Restaurant ?
-                    1 To Reset Cart
-                    2 To Cancel""");
-        final int userChoice = getChoice();
-
-        if (1 == (userChoice)) {
-            CartController.getInstance().clearCart(user);
-            addFoodToCart(user, restaurant, food, quantity);
-        }
-    }
-
-    /**
-     * <p>
      * Displays and handles the user choice to add extra foods or to place order.
      * </p>
      *
-     * @param restaurant Represents the {@link Restaurant} selected by the user
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of the current {@link User}
+     * @param restaurantId Represents the id of the {@link Restaurant}
      */
-    public void addFoodOrPlaceOrder(final Restaurant restaurant, final User user) {
-        logger.info("Do You Want To Add More Food\n1.Add More Food \n2.Place Order");
-        final int userChoice = getChoice();
+    public void addFoodOrPlaceOrder(final long userId, final long restaurantId) {
+        logger.info("""
+                    Do You Want To Add More Food
+                    1.Add More Food
+                    2.Place Order""");
+        final int userChoice = getValue();
 
         if (-1 == userChoice) {
-            displayMenucard(restaurant, user, restaurant.getMenuCard());
+            getMenucard(userId, restaurantId);
         }
 
         switch (userChoice) {
             case 1:
-                displayMenucard(restaurant, user, restaurant.getMenuCard());
+                getMenucard(userId, restaurantId);
                 break;
             case 2:
-                CartView.getInstance().displayCart(restaurant, user);
+                CartView.getInstance().displayCart(userId, restaurantId);
                 break;
             default:
                 logger.warn("Enter A Valid Option");
-                addFoodOrPlaceOrder(restaurant, user);
+                addFoodOrPlaceOrder(userId, restaurantId);
         }
     }
 }

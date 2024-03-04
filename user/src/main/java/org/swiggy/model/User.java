@@ -1,7 +1,5 @@
 package org.swiggy.model;
 
-import java.util.Map;
-
 /**
  * <p>
  * Represents user entity with properties and methods.
@@ -12,23 +10,23 @@ import java.util.Map;
  */
 public class User {
 
-    private int id;
+    private long id;
     private String name;
     private String phoneNumber;
     private String password;
     private String emailId;
-    private String address;
-    private Cart cart;
+
+    public User() {
+    }
 
     public User(final String name, final String phoneNumber, final String emailId, final String password) {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.emailId = emailId;
-        this.cart = new Cart();
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -48,19 +46,7 @@ public class User {
         return password;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public Map<Food, Integer> getCartItems() {
-        return cart.getCart();
-    }
-
-    public Cart getCart() {
-        return cart;
-    }
-
-    public void setId(final int id) {
+    public void setId(final long id) {
         this.id = id;
     }
 
@@ -78,13 +64,5 @@ public class User {
 
     public void setPassword(final String password) {
         this.password = password;
-    }
-
-    public void setAddress(final String address) {
-        this.address = address;
-    }
-
-    public void addFoodToCart(final Food selectedFood, final int quantity) {
-        cart.addFood(selectedFood, quantity);
     }
 }

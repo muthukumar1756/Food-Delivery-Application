@@ -16,7 +16,6 @@ import org.swiggy.view.UserDataUpdateType;
 public class UserController {
 
     private static UserController userController;
-
     private final UserService userService;
 
     private UserController() {
@@ -46,8 +45,8 @@ public class UserController {
      * @param user Represents the current {@link User}
      * @return True if user is created, false otherwise
      */
-    public boolean createUser(final User user) {
-        return userService.createUser(user);
+    public boolean createUserProfile(final User user) {
+        return userService.createUserProfile(user);
     }
 
     /**
@@ -65,14 +64,26 @@ public class UserController {
 
     /**
      * <p>
+     * Gets the user if the id matches.
+     * </p>
+     *
+     * @param userId Represents the password of the current user
+     * @return The current user
+     */
+    public User getUserById(final long userId) {
+        return userService.getUserById(userId);
+    }
+
+    /**
+     * <p>
      * Updates the data of the current user.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @param userData Represents the data of the current user to be updated
      * @param type Represents the type of data of the current user to be updated
      */
-    public void updateUser(final User user, final String userData, final UserDataUpdateType type) {
-        userService.updateUser(user, userData, type);
+    public void updateUserData(final long userId, final String userData, final UserDataUpdateType type) {
+        userService.updateUserData(userId, userData, type);
     }
 }

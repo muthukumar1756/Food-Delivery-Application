@@ -1,4 +1,4 @@
-package org.swiggy.model;
+package org.swiggy;
 
 import org.swiggy.exception.HashAlgorithmNotFoundException;
 
@@ -14,11 +14,11 @@ import java.security.NoSuchAlgorithmException;
  * @author Muthu kumar V
  * @version 1.0
  */
-public class PasswordGenerator {
+public class PasswordHashGenerator {
 
-    private static PasswordGenerator passwordGenerator;
+    private static PasswordHashGenerator passwordHashGenerator;
 
-    private PasswordGenerator() {
+    private PasswordHashGenerator() {
     }
 
     /**
@@ -28,12 +28,12 @@ public class PasswordGenerator {
      *
      * @return The password generator object
      */
-    public static PasswordGenerator getInstance() {
-        if (null == passwordGenerator) {
-            passwordGenerator = new PasswordGenerator();
+    public static PasswordHashGenerator getInstance() {
+        if (null == passwordHashGenerator) {
+            passwordHashGenerator = new PasswordHashGenerator();
         }
 
-        return passwordGenerator;
+        return passwordHashGenerator;
     }
 
     /**
@@ -50,6 +50,7 @@ public class PasswordGenerator {
             final byte[] encodedHash = messageDigest.digest(password.getBytes(StandardCharsets.UTF_8));
 
             final StringBuilder hashString = new StringBuilder();
+
             for (final byte hashByte : encodedHash) {
                 hashString.append(String.format("%02x", hashByte));
             }

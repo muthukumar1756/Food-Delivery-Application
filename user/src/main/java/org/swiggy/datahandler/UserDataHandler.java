@@ -20,7 +20,7 @@ public interface UserDataHandler {
      * @param user Represents the current {@link User}
      * @return True if user is created, false otherwise
      */
-    boolean createUser(final User user);
+    boolean createUserProfile(final User user);
 
     /**
      * <p>
@@ -35,12 +35,22 @@ public interface UserDataHandler {
 
     /**
      * <p>
+     * Gets the user if the id matches.
+     * </p>
+     *
+     * @param userId Represents the password of the current user
+     * @return The current user
+     */
+    User getUserById(final long userId);
+
+    /**
+     * <p>
      * Updates the data of the current user.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of current {@link User}
      * @param type Represents the type of data to be updated
      * @param userData Represents the data to be updated
      */
-    void updateUser(final User user, final String type, final String userData);
+    void updateUserProfile(final long userId, final String type, final String userData);
 }

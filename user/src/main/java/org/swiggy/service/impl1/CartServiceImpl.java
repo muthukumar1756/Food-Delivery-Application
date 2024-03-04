@@ -1,7 +1,9 @@
 package org.swiggy.service.impl1;
 
+import java.util.List;
 import java.util.Map;
 
+import org.swiggy.model.Cart;
 import org.swiggy.model.Food;
 import org.swiggy.model.User;
 import org.swiggy.service.CartService;
@@ -39,21 +41,19 @@ public class CartServiceImpl implements CartService {
     /**
      * {@inheritDoc}
      *
-     * @param food Represents the current {@link Food} selected by the user
-     * @param user Represents the current {@link User}
-     * @param quantity Represents the quantity of the {@link Food} given by the current user
+     * @param cart Represents the cart of the user
      * @return True if the food is added to the user cart, false otherwise
      */
     @Override
-    public boolean addFoodToCart(final Food food, final User user, final int quantity, final int restaurantId) {
-        final int foodQuantity = food.getFoodQuantity();
-        final int currentFoodQuantity = foodQuantity - quantity;
+    public boolean addFoodToCart(final Cart cart) {
+        final int foodQuantity = cart.getQuantity();
+        final int currentFoodQuantity = foodQuantity - cart.getQuantity();
 
         if (0 < foodQuantity) {
             return false;
         } else {
-            food.updateQuantity(currentFoodQuantity);
-            user.addFoodToCart(food, quantity);
+            //cart.updateQuantity(currentFoodQuantity);
+            //user.addFoodToCart(food, quantity);
 
             return true;
         }
@@ -62,26 +62,30 @@ public class CartServiceImpl implements CartService {
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @return The map having all the foods from the user cart
      */
     @Override
-    public Map<Food, Integer> getCart(final User user) {
-        return user.getCartItems();
+    public List<Cart> getCart(final long userId) {
+        return null; //user.getCartItems();
+    }
+
+    @Override
+    public boolean removeFood(long cartId) {
+        return false;
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @param food Represents the current {@link Food} selected by the user
      * @return True if the food is removed,false otherwise
      */
-    @Override
-    public boolean removeFood(final User user, final Food food) {
-        final Map<Food, Integer> cart = user.getCartItems();
-
-        cart.remove(food);
+    public boolean removeFood(final long userId, final Food food) {
+//        final Map<Food, Integer> cart = user.getCartItems();
+//
+//        cart.remove(food);
 
         return true;
     }
@@ -89,12 +93,12 @@ public class CartServiceImpl implements CartService {
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @return The true if the cart is cleared, false otherwise
      */
     @Override
-    public boolean clearCart(final User user) {
-        user.getCartItems().clear();
+    public boolean clearCart(final long userId) {
+        //user.getCartItems().clear();
 
         return true;
     }

@@ -2,11 +2,13 @@ package org.swiggy.service.impl2;
 
 import org.swiggy.datahandler.OrderDataHandler;
 import org.swiggy.datahandler.impl.OrderDataHandlerImpl;
-import org.swiggy.model.Food;
+import org.swiggy.model.Address;
+import org.swiggy.model.Cart;
+import org.swiggy.model.Order;
 import org.swiggy.model.User;
 import org.swiggy.service.OrderService;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -19,7 +21,6 @@ import java.util.Map;
 public class OrderServiceImpl implements OrderService {
 
     private static OrderService orderService;
-
     private final OrderDataHandler orderDataHandler;
 
     private OrderServiceImpl() {
@@ -44,11 +45,42 @@ public class OrderServiceImpl implements OrderService {
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param cartList Represents the list of cart items
+     * @param orderList Represents the list of orders
      * @return True if the order is placed, false otherwise
      */
     @Override
-    public boolean placeOrder(final User user, final Map<Food, Integer> cart) {
-        return orderDataHandler.placeOrder(user, cart);
+    public boolean placeOrder(final List<Cart> cartList, List<Order> orderList) {
+        return orderDataHandler.placeOrder(cartList, orderList);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param address Represents the address of the user
+     */
+    @Override
+    public void addAddress(final Address address) {
+        orderDataHandler.addAddress(address);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param userId Represents the id of the current {@link User}
+     */
+    public List<Address> getAddress(final long userId) {
+        return orderDataHandler.getAddress(userId);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param userId Represents the id of the current {@link User}
+     * @return List having all the orders placed by the user
+     */
+    @Override
+    public List<Order> getOrders(final long userId) {
+        return orderDataHandler.getOrders(userId);
     }
 }

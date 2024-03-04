@@ -1,9 +1,9 @@
 package org.swiggy.datahandler;
 
-import org.swiggy.model.Food;
+import org.swiggy.model.Cart;
 import org.swiggy.model.User;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -14,46 +14,44 @@ import java.util.Map;
  * @version 1.1
  */
 public interface CartDataHandler {
+
     /**
      * <p>
      * Adds the selected food to the user cart.
      * </p>
      *
-     * @param food Represents the current {@link Food} selected by the user
-     * @param user Represents the current {@link User}
-     * @param quantity Represents the quantity of the {@link Food} given by the current user
+     * @param cart Represents the cart of the user
      * @return True if the food is added to the user cart, false otherwise
      */
-    boolean addFoodToCart(final Food food, final User user, final int quantity, final int restaurantId);
+    boolean addFoodToCart(final Cart cart);
 
     /**
      * <p>
      * Gets the cart of the current user.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @return The map having all the foods from the user cart
      */
-    Map<Food, Integer> getCart(final User user);
+    List<Cart> getCart(final long userId);
 
     /**
      * <p>
      * Removes the selected food from the user cart.
      * </p>
      *
-     * @param user Represents the current {@link User}
-     * @param food Represents the current {@link Food} selected by the user
+     * @param cartId Represents the id 0f the user cart
      * @return True if the food is removed,false otherwise
      */
-    boolean removeFood(final User user, final Food food);
+    boolean removeFood(final long cartId);
 
     /**
      * <p>
      * Remove all the foods from the user cart.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id 0f the current {@link User}
      * @return The true if the cart is cleared, false otherwise
      */
-    boolean clearCart(final User user);
+    boolean clearCart(final long userId);
 }

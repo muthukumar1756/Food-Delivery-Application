@@ -21,7 +21,7 @@ public interface UserService {
      * @param user Represents the current {@link User}
      * @return True if user is created, false otherwise
      */
-    boolean createUser(final User user);
+    boolean createUserProfile(final User user);
 
     /**
      * <p>
@@ -34,14 +34,25 @@ public interface UserService {
      */
     User getUser(final String phoneNumber, final String password);
 
+
+    /**
+     * <p>
+     * Gets the user if the id matches.
+     * </p>
+     *
+     * @param userId Represents the password of the current user
+     * @return The current user
+     */
+    User getUserById(final long userId);
+
     /**
      * <p>
      * Updates the data of the current user.
      * </p>
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the password of the current user
      * @param userData Represents the data of the current user to be updated
      * @param type Represents the type of data of the current user to be updated
      */
-    void updateUser(final User user, final String userData, final UserDataUpdateType type);
+    void updateUserData(final long userId, final String userData, final UserDataUpdateType type);
 }

@@ -6,14 +6,30 @@
 
     <groupId>org.swiggy</groupId>
     <artifactId>food-ordering-app</artifactId>
-    <version>${parent.version}</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>food-ordering-application Bundle</name>
+    <description>
+        food-ordering-application OSGi bundle project.
+    </description>
+
     <properties>
-        <parent.version>2.0-SNAPSHOT</parent.version>
-        <my.java.version>15</my.java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <modules>
+        <module>initiator</module>
+        <module>user</module>
+        <module>validator</module>
+        <module>restaurant</module>
+        <module>database</module>
+        <module>shared-module</module>
+        <module>exception</module>
+        <module>swiggy-feature</module>
+    </modules>
 
     <dependencies>
         <dependency>
@@ -26,30 +42,34 @@
             <artifactId>log4j-core</artifactId>
             <version>2.22.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>6.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+            <version>1.5.1</version>
+        </dependency>
     </dependencies>
 
-    <modules>
-        <module>initiator</module>
-        <module>user</module>
-        <module>validator</module>
-        <module>restaurant</module>
-        <module>database</module>
-        <module>shared-module</module>
-        <module>exception</module>
-    </modules>
-
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
-                <configuration>
-                    <source>${my.java.version}</source>
-                    <target>${my.java.version}</target>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>5.1.9</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <instructions>
+                            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                            <Import-Package>org.osgi.framework*</Import-Package>
+                        </instructions>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
-
 </project>

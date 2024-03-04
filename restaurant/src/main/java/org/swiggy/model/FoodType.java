@@ -2,7 +2,7 @@ package org.swiggy.model;
 
 /**
  * <p>
- * Provides the food type.
+ * Defines the food type.
  * </p>
  *
  * @author Muthu kumar V
@@ -18,12 +18,17 @@ public enum FoodType {
         this.id = id;
     }
 
-    /**
-     *
-     * @param foodType Represents the category of the food
-     * @return The id of the food category
-     */
-    public static int getId(FoodType foodType) {
+    public static int getId(final FoodType foodType) {
         return foodType.id;
+    }
+
+    public static FoodType getTypeById(final int id) {
+        for (FoodType type : values()) {
+
+            if (type.id == id) {
+                return type;
+            }
+        }
+        return null;
     }
 }

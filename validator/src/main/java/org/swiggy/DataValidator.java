@@ -8,16 +8,15 @@ package org.swiggy;
  * @author Muthu kumar V
  * @version 1.0
  */
-public class UserDataValidator {
+public class DataValidator {
 
-    private static UserDataValidator userDataValidator;
-
-    private static final String USER_NAME_PATTERN = "^[A-Za-z][A-Za-z\\d]{0,20}$";
+    private static DataValidator dataValidator;
+    private static final String NAME_PATTERN = "^[A-Za-z][A-Za-z\\s]{0,20}$";
     private static final String PASSWORD_PATTERN = "^(?=.*[a-zA-Z\\d])(?=.*[@#$%^&+=]).{8,15}$";
     private static final String PHONE_NUMBER_PATTERN = "^(0/91)?[6789]\\d{9}$";
     private static final String EMAIL_PATTERN = "^[a-z][a-z\\d._]+@[a-z]{5,}.[a-z]{2,3}$";
 
-    private UserDataValidator() {
+    private DataValidator() {
     }
 
     /**
@@ -27,12 +26,12 @@ public class UserDataValidator {
      *
      * @return The validation object
      */
-    public static UserDataValidator getInstance() {
-        if (null == userDataValidator) {
-            userDataValidator = new UserDataValidator();
+    public static DataValidator getInstance() {
+        if (null == dataValidator) {
+            dataValidator = new DataValidator();
         }
 
-        return userDataValidator;
+        return dataValidator;
     }
 
     /**
@@ -44,7 +43,7 @@ public class UserDataValidator {
      * @return True if username is valid, false otherwise
      */
     public boolean validateUserName(final String userName) {
-       return userName.matches(USER_NAME_PATTERN);
+       return userName.matches(NAME_PATTERN);
     }
 
     /**

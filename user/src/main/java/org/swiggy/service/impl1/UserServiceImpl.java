@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
      * @return True if user is created, false otherwise
      */
     @Override
-    public boolean createUser(final User user) {
+    public boolean createUserProfile(final User user) {
         if (!users.containsKey(user.getPhoneNumber())) {
 
             if(!users.containsKey((user.getEmailId()))) {
@@ -78,25 +78,30 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public User getUserById(final long userId) {
+        return null;
+    }
+
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the id of current {@link User}
      * @param type Represents the user data to be updated
      */
-    public void updateUser(final User user, final String userData, final UserDataUpdateType type){
+    public void updateUserData(final long userId, final String userData, final UserDataUpdateType type){
         switch (type) {
             case NAME:
-                user.setName(userData);
+              //  user.setName(userData);
                 break;
             case PHONENUMBER:
-                user.setPhoneNumber(userData);
+               // user.setPhoneNumber(userData);
                 break;
             case EMAILID:
-                user.setEmailId(userData);
+                //user.setEmailId(userData);
                 break;
             case PASSWORD:
-                user.setPassword(userData);
+               // user.setPassword(userData);
                 break;
         }
     }

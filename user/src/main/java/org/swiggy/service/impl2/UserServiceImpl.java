@@ -17,7 +17,6 @@ import org.swiggy.view.UserDataUpdateType;
 public class UserServiceImpl implements UserService {
 
     private static UserService userService;
-
     private final UserDataHandler userDataHandler;
 
     private UserServiceImpl() {
@@ -46,8 +45,8 @@ public class UserServiceImpl implements UserService {
      * @return True if user is created, false otherwise
      */
     @Override
-    public boolean createUser(final User user) {
-       return userDataHandler.createUser(user);
+    public boolean createUserProfile(final User user) {
+       return userDataHandler.createUserProfile(user);
     }
 
     /**
@@ -65,22 +64,34 @@ public class UserServiceImpl implements UserService {
     /**
      * {@inheritDoc}
      *
-     * @param user Represents the current {@link User}
+     * @param userId Represents the password of the current user
+     * @return The current user
+     */
+    @Override
+    public User getUserById(final long userId) {
+        return userDataHandler.getUserById(userId);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param userId Represents the id of current {@link User}
      * @param type Represents the user data to be updated
      */
-    public void updateUser(final User user, final String userData, final UserDataUpdateType type){
+    @Override
+    public void updateUserData(final long userId, final String userData, final UserDataUpdateType type){
         switch (type) {
             case NAME:
-                userDataHandler.updateUser(user, "name", userData);
+                userDataHandler.updateUserProfile(userId, "name", userData);
                 break;
             case PHONENUMBER:
-                userDataHandler.updateUser(user, "phone_number", userData);
+                userDataHandler.updateUserProfile(userId, "phone_number", userData);
                 break;
             case EMAILID :
-                userDataHandler.updateUser(user, "email_id", userData);
+                userDataHandler.updateUserProfile(userId, "email_id", userData);
                 break;
             case PASSWORD:
-                userDataHandler.updateUser(user, "password", userData);
+                userDataHandler.updateUserProfile(userId, "password", userData);
                 break;
         }
     }

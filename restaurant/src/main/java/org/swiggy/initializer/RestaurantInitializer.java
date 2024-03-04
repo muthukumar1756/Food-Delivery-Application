@@ -2,9 +2,7 @@ package org.swiggy.initializer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,7 +33,7 @@ public class RestaurantInitializer {
         logger = LogManager.getLogger(RestaurantInitializer.class);
         restaurantController = RestaurantController.getInstance();
     }
-
+    
     /**
      * <p>
      * Gets the object of the restaurant initializer class.
@@ -56,23 +54,23 @@ public class RestaurantInitializer {
      * Loads the data of the restaurant.
      * </p>
      */
-    public void loadRestaurants() {
+    public void loadRestaurantsData() {
         try (InputStream inputStream = ClassLoader.getSystemResourceAsStream("Restaurants.properties")) {
             final Properties properties = new Properties();
-            final Map<Integer, Restaurant> restaurants = new HashMap<>();
+            final List<Restaurant> restaurants = new ArrayList<>();
 
             properties.load(inputStream);
 
             for (final Object key : properties.keySet()) {
-                final int id = Integer.parseInt((String) key);
                 final String name = properties.getProperty((String) key);
-                final Restaurant restaurant = new Restaurant(name);
+                final Restaurant restaurant = new Restaurant();
 
-                restaurants.put(id, restaurant);
+                restaurant.setName(name);
+                restaurants.add(restaurant);
             }
 
-            if (restaurantController.loadRestaurants(restaurants)) {
-                loadMenuCard(restaurants);
+            if (restaurantController.loadRestaurantsData(restaurants)) {
+                loadMenuCardData(restaurants);
             }
         } catch (IOException message) {
             logger.error(message.getMessage());
@@ -87,13 +85,14 @@ public class RestaurantInitializer {
      *
      * @param restaurants Represents all the {@link Restaurant}
      */
-    private void loadMenuCard(final Map<Integer, Restaurant> restaurants) {
-        final Map<Food, Restaurant> menuCard = new HashMap<>();
+    private void loadMenuCardData(final List<Restaurant> restaurants) {
+        final Map<Food, Integer> menuCard = new HashMap<>();
 
-        for (final Restaurant restaurant : restaurants.values()) {
-            final String restaurantPath = String.join("", restaurant.getName().toLowerCase(), ".properties");
+        for (final Restaurant restaurant : restaurants) {
+            final String restaurantDataPath = String.join("", restaurant.getName().toLowerCase(),
+                    ".properties");
 
-            try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(restaurantPath)) {
+            try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(restaurantDataPath)) {
                 final Properties properties = new Properties();
 
                 properties.load(inputStream);
@@ -107,9 +106,9 @@ public class RestaurantInitializer {
                     final int foodQuantity = Integer.parseInt(restaurantProperty[3]);
 
                     if (type.equalsIgnoreCase(FoodType.VEG.name())) {
-                        menuCard.put(new Food(name, rate, FoodType.VEG, foodQuantity), restaurant);
+                        menuCard.put(new Food(name, rate, FoodType.VEG, foodQuantity), restaurant.getRestaurantId());
                     } else {
-                        menuCard.put(new Food(name, rate, FoodType.NONVEG, foodQuantity), restaurant);
+                        menuCard.put(new Food(name, rate, FoodType.NONVEG, foodQuantity), restaurant.getRestaurantId());
                     }
                 }
             } catch (IOException message) {
@@ -117,6 +116,6 @@ public class RestaurantInitializer {
                 throw new FoodDataLoadFailureException(message.getMessage());
             }
         }
-        restaurantController.loadMenuCard(menuCard);
+        restaurantController.loadMenuCardData(menuCard);
     }
 }
