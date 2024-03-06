@@ -61,9 +61,6 @@ public class RestaurantServiceImpl implements RestaurantService {
     public void loadFoodData(Food food, long restaurantId) {
     }
 
-    public void loadFood(Food food, int restaurantId) {
-    }
-
     /**
      * {@inheritDoc}
      *
@@ -81,6 +78,7 @@ public class RestaurantServiceImpl implements RestaurantService {
      *
      * @param menuCard Contains the list of foods in the restaurant
      */
+    @Override
     public void loadMenuCardData(final Map<Food, Integer> menuCard) {
         for (final Map.Entry<Food, Integer> restaurantFood : menuCard.entrySet()) {
             final Food food = restaurantFood.getKey();
@@ -101,22 +99,6 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Override
     public int getQuantity(long foodId) {
         return 0;
-    }
-
-
-    public int getQuantity(long foodId, int quantity) {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param food Represents the current {@link Food} selected by the user
-     * @param quantity Represents the quantity of the food given by the current user
-     * @return Available quantity from the selected restaurant
-     */
-    public int getQuantity(final Food food, final int quantity) {
-        return food.getFoodQuantity();
     }
 
     /**

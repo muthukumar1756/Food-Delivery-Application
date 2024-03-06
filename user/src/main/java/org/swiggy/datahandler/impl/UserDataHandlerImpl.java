@@ -59,7 +59,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
         final String query = """
                 insert into users (name, phone_number, email_id, password) values (?, ?, ?, ?) returning id""";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, user.getName());
             preparedStatement.setString(2, user.getPhoneNumber());
             preparedStatement.setString(3, user.getEmailId());
@@ -87,7 +87,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
         final String query = """
                 select id, name, phone_number, email_id, password from users where phone_Number = ? and password = ?""";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, phoneNumber);
             preparedStatement.setString(2, password);
             final ResultSet resultSet = preparedStatement.executeQuery();
@@ -122,7 +122,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
         final String query = """
                 select id, name, phone_number, email_id, password from users where id = ?""";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, userId);
             final ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -156,7 +156,7 @@ public class UserDataHandlerImpl implements UserDataHandler {
     public void updateUserProfile(final long userId, final String type, final String userData) {
         final String query = String.join("", "update users set ", type, " = ? where id = ?");
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, userData);
             preparedStatement.setLong(2, userId);
             preparedStatement.executeUpdate();

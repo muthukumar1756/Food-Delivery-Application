@@ -20,7 +20,6 @@ import java.util.Map;
 public class RestaurantController {
 
     private static RestaurantController restaurantController;
-
     private final RestaurantService restaurantService;
 
     private RestaurantController() {

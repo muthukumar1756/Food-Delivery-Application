@@ -54,8 +54,4 @@ public class SwiggyActivator extends CommonView {
                 selectRole();
         }
     }
-
-    public static void main(String[] args) {
-        new SwiggyActivator().start();
-    }
 }

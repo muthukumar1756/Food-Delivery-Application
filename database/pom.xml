@@ -18,16 +18,19 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.7.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>exception</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>shared-module</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -40,9 +43,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>org.swiggy.database*</Export-Package>
-                        <Import-Package>org.postgresql*, org.swiggy.exception*,
-                            org.swiggy.shared-module*</Import-Package>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Export-Package>org.swiggy.*</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

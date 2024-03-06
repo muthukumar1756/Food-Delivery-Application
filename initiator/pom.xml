@@ -18,16 +18,19 @@
             <groupId>org.swiggy</groupId>
             <artifactId>user</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>restaurant</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>shared-module</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -40,8 +43,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Import-Package>org.swiggy.user*, org.swiggy.restaurant*</Import-Package>
+                        <Bundle-Version>${project.version}</Bundle-Version>
                     </instructions>
                 </configuration>
             </plugin>

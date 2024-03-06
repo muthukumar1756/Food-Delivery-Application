@@ -22,7 +22,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>org.swiggy.validator*</Export-Package>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Export-Package>org.swiggy.*</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

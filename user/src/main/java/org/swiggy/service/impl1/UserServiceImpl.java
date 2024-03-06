@@ -48,7 +48,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean createUserProfile(final User user) {
         if (!users.containsKey(user.getPhoneNumber())) {
-
             if(!users.containsKey((user.getEmailId()))) {
                 users.put(user.getPhoneNumber(), user);
 
@@ -80,6 +79,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(final long userId) {
+        for (final User user : users.values()) {
+
+            if (user.getId() == userId) {
+                return user;
+            }
+        }
+
         return null;
     }
 
@@ -89,19 +95,26 @@ public class UserServiceImpl implements UserService {
      * @param userId Represents the id of current {@link User}
      * @param type Represents the user data to be updated
      */
-    public void updateUserData(final long userId, final String userData, final UserDataUpdateType type){
+    public void updateUserData(final long userId, final String userData, final UserDataUpdateType type) {
+        User currentUser = null;
+        for (final User user : users.values()) {
+
+            if (user.getId() == userId) {
+                currentUser = user;
+            }
+        }
         switch (type) {
             case NAME:
-              //  user.setName(userData);
+                currentUser.setName(userData);
                 break;
             case PHONENUMBER:
-               // user.setPhoneNumber(userData);
+                currentUser.setPhoneNumber(userData);
                 break;
             case EMAILID:
-                //user.setEmailId(userData);
+                currentUser.setEmailId(userData);
                 break;
             case PASSWORD:
-               // user.setPassword(userData);
+                currentUser.setPassword(userData);
                 break;
         }
     }

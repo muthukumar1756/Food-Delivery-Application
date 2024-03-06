@@ -18,6 +18,7 @@
             <groupId>org.swiggy</groupId>
             <artifactId>exception</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -30,7 +31,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>org.swiggy.shared-module*</Export-Package>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Export-Package>org.swiggy.*</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

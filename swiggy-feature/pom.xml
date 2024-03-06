@@ -14,13 +14,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.swiggy</groupId>
-            <artifactId>shared-module</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>exception</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.swiggy</groupId>
+            <artifactId>shared-module</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -30,12 +35,12 @@
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
-            <artifactId>restaurant</artifactId>
+            <artifactId>validator</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
-            <artifactId>validator</artifactId>
+            <artifactId>restaurant</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

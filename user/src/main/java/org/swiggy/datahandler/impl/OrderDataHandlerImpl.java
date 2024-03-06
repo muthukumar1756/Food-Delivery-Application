@@ -91,7 +91,7 @@ public class OrderDataHandlerImpl implements OrderDataHandler {
     private void updateCartStatus(final List<Cart> cartList) {
         final String query = "update cart set status = 2 where id = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             for (final Cart cart : cartList) {
                 preparedStatement.setLong(1, cart.getId());
@@ -115,7 +115,7 @@ public class OrderDataHandlerImpl implements OrderDataHandler {
                 insert into address (user_id, house_number, street_name, area_name, city_name, pincode) values
                 (?, ?, ?, ?, ?, ?) returning id""";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setLong(1, address.getUserId());
             preparedStatement.setString(2, address.getHouseNumber());
@@ -144,7 +144,7 @@ public class OrderDataHandlerImpl implements OrderDataHandler {
     public List<Address> getAddress(final long userId) {
         final String query = "select * from address where user_id = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, userId);
             final ResultSet resultSet = preparedStatement.executeQuery();
             final List<Address> addressList = new ArrayList<>();
@@ -180,7 +180,7 @@ public class OrderDataHandlerImpl implements OrderDataHandler {
     private void updateQuantity(final long foodId, final int quantity) {
         final String query = "update food set food_quantity = food_quantity - ? where id = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, quantity);
             preparedStatement.setLong(2, foodId);
             preparedStatement.executeUpdate();
@@ -205,7 +205,7 @@ public class OrderDataHandlerImpl implements OrderDataHandler {
                 join restaurant r on c.restaurant_id = r.id
                 where o.user_id = ? and c.status = 2""";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, userId);
             final ResultSet resultSet = preparedStatement.executeQuery();
             final List<Order> orderList = new ArrayList<>();

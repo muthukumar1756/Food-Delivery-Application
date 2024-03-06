@@ -52,8 +52,6 @@ public class CartServiceImpl implements CartService {
         if (0 < foodQuantity) {
             return false;
         } else {
-            //cart.updateQuantity(currentFoodQuantity);
-            //user.addFoodToCart(food, quantity);
 
             return true;
         }
@@ -67,7 +65,7 @@ public class CartServiceImpl implements CartService {
      */
     @Override
     public List<Cart> getCart(final long userId) {
-        return null; //user.getCartItems();
+        return null;
     }
 
     @Override
@@ -83,9 +81,7 @@ public class CartServiceImpl implements CartService {
      * @return True if the food is removed,false otherwise
      */
     public boolean removeFood(final long userId, final Food food) {
-//        final Map<Food, Integer> cart = user.getCartItems();
-//
-//        cart.remove(food);
+
 
         return true;
     }
@@ -98,7 +94,6 @@ public class CartServiceImpl implements CartService {
      */
     @Override
     public boolean clearCart(final long userId) {
-        //user.getCartItems().clear();
 
         return true;
     }

@@ -66,7 +66,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
         final String query = """
                 insert into restaurant (name, phone_number, email_id, password) values (?, ?, ?, ?) returning id""";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, restaurant.getName());
             preparedStatement.setString(2, restaurant.getPhoneNumber());
             preparedStatement.setString(3, restaurant.getEmailId());
@@ -97,7 +97,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
                 select id, name, phone_number, email_id, password from restaurant where phone_Number = ? and
                 password = ?""";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, phoneNumber);
             preparedStatement.setString(2, password);
             final ResultSet resultSet = preparedStatement.executeQuery();
@@ -132,7 +132,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
         final String query = """
                 select id, name, phone_number, email_id, password from restaurant where id = ?""";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, restaurantId);
             final ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -168,7 +168,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
             final String query = """
                     insert into food (name, rate, food_type, food_quantity) values(?, ?, ?, ?) returning id""";
 
-            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setString(1, food.getFoodName());
                 preparedStatement.setFloat(2, food.getRate());
                 preparedStatement.setInt(3, FoodType.getId(food.getType()));
@@ -215,7 +215,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
                     final String query = "insert into restaurant (name) values (?) returning id";
                     final String restaurantName = restaurant.getName();
 
-                    try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                    try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                         preparedStatement.setString(1, restaurantName);
                         final ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -258,7 +258,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
     public int getRestaurantsCount() {
         final String query = "select count(*) from restaurant";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             final ResultSet resultSet = preparedStatement.executeQuery();
 
             resultSet.next();
@@ -278,7 +278,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
     private void clearRestaurants() {
         final String query = "truncate table restaurant cascade";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.executeUpdate();
         } catch (SQLException message) {
             logger.error(message.getMessage());
@@ -303,7 +303,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
                 final String query = """
                 insert into food(name, rate, food_type, food_quantity) values(?, ?, ?, ?) returning id""";
 
-                try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                     preparedStatement.setString(1, food.getFoodName());
                     preparedStatement.setFloat(2, food.getRate());
                     preparedStatement.setInt(3, FoodType.getId(food.getType()));
@@ -365,7 +365,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
     public List<Restaurant> getRestaurants() {
         final String query = "select id, name from restaurant";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             final List<Restaurant> restaurants = new ArrayList<>();
             final ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -394,7 +394,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
     public int getQuantity(final long foodId) {
         final String query = "select food_quantity from food where id = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, foodId);
             final ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -465,7 +465,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
     public void removeFood(final long foodId) {
         final String query = "delete from food where id = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, foodId);
             preparedStatement.executeUpdate();
         } catch (SQLException message) {
@@ -485,7 +485,7 @@ public class RestaurantDataHandlerImpl implements RestaurantDataHandler {
     public void updateRestaurantData(final long restaurantId, final String type, final String restaurantData) {
         final String query = String.join("", "update restaurant set ", type, " = ? where id = ?");
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, restaurantData);
             preparedStatement.setLong(2, restaurantId);
             preparedStatement.executeUpdate();

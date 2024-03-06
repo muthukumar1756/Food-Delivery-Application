@@ -83,7 +83,6 @@ public class RestaurantDisplayView extends CommonView {
             logger.warn("Select The Valid Option");
             displayRestaurants(userId);
         }
-
     }
 
     /**
@@ -212,9 +211,17 @@ public class RestaurantDisplayView extends CommonView {
                     2 To Cancel""");
         final int userChoice = getValue();
 
-        if (1 == (userChoice)) {
-            CartController.getInstance().clearCart(userId);
-            addFoodToCart(userId, restaurantId, food, quantity);
+        switch (userChoice) {
+            case 1:
+                CartController.getInstance().clearCart(userId);
+                addFoodToCart(userId, restaurantId, food, quantity);
+                break;
+            case 2:
+                logger.info("Cancelled");
+                break;
+            default:
+                logger.info("Enter a Valid Input");
+                break;
         }
     }
 

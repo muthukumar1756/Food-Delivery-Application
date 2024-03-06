@@ -67,7 +67,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
             insert into cart (user_id, restaurant_id, food_id, quantity, total_amount) values
             (?, ?, ?, ?, ?) returning id""";
 
-            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setLong(1, cart.getUserId());
                 preparedStatement.setLong(2, cart.getRestaurantId());
                 preparedStatement.setLong(3, cart.getFoodId());
@@ -102,7 +102,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
     private boolean isCartEntryExist(final long userId, final long restaurantId) {
         final String query = "select count(*) from cart where user_id = ? and restaurant_id = ? and status = 1";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, userId);
             preparedStatement.setLong(2, restaurantId);
             final ResultSet resultSet = preparedStatement.executeQuery();
@@ -128,7 +128,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
     private boolean isUserCartEmpty(final long userId) {
         final String query = "select count(*) from cart where user_id = ? and status = 1";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, userId);
             final ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -156,7 +156,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
                 join restaurant r on c.restaurant_id = r.id
                 join users u on c.user_id = u.id where u.id = ? and c.status = 1""";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, userId);
             final ResultSet resultSet = preparedStatement.executeQuery();
             final List<Cart> cartList = new ArrayList<>();
@@ -189,7 +189,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
     public boolean removeFood(final long cartId) {
         final String query = "delete from cart c where c.id = ? and status = 1";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, cartId);
 
             return 0 < preparedStatement.executeUpdate();
@@ -209,7 +209,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
     public boolean clearCart(final long userId) {
         final String query = "delete from cart where user_id = ? and status = 1";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, userId);
 
             return 0 < preparedStatement.executeUpdate();

@@ -18,21 +18,25 @@
             <groupId>org.swiggy</groupId>
             <artifactId>shared-module</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>database</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>exception</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>validator</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -45,9 +49,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Export-Package>org.swiggy.restaurant*</Export-Package>
-                        <Import-Package>org.swiggy.database*, org.swiggy.shared-module*, org.swiggy.exception*</Import-Package>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Export-Package>org.swiggy.*</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
