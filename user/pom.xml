@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>org.swiggy</groupId>
-            <artifactId>database</artifactId>
+            <artifactId>common-utilities</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -28,19 +28,19 @@
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
-            <artifactId>shared-module</artifactId>
+            <artifactId>exception</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.swiggy</groupId>
+            <artifactId>database</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.swiggy</groupId>
             <artifactId>restaurant</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.swiggy</groupId>
-            <artifactId>exception</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -56,7 +56,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
-                        <Export-Package>org.swiggy.*</Export-Package>
+                        <Bundle-Activator>org.swiggy.user.UserActivator</Bundle-Activator>
+                        <Export-Package>org.swiggy.user*</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
