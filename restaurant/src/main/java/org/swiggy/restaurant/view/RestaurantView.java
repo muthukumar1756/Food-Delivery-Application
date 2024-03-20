@@ -6,14 +6,15 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 
 import org.swiggy.common.hashgenerator.PasswordHashGenerator;
-import org.swiggy.validator.DataValidator;
-import org.swiggy.restaurant.controller.RestaurantController;
+import org.swiggy.initiator.launcher.Launcher;
+import org.swiggy.validator.regexvalidator.DataValidator;
+import org.swiggy.restaurant.internal.controller.RestaurantController;
 import org.swiggy.restaurant.model.Food;
 import org.swiggy.restaurant.model.FoodType;
 import org.swiggy.restaurant.model.Restaurant;
-import org.swiggy.restaurant.model.RestaurantDataUpdateType;
-import org.swiggy.common.view.CommonView;
-import org.swiggy.common.view.CommonViewImpl;
+import org.swiggy.restaurant.model.RestaurantData;
+import org.swiggy.common.inputhandler.InputHandler;
+import org.swiggy.common.inputhandler.impl.InputHandlerImpl;
 
 /**
  * <p>
@@ -25,15 +26,15 @@ import org.swiggy.common.view.CommonViewImpl;
  */
 public class RestaurantView {
 
+    private static final Logger LOGGER = LogManager.getLogger(RestaurantView.class);
     private static RestaurantView restaurantView;
-    private final CommonView commonView;
-    private final Logger logger;
+    private final InputHandler inputHandler;
     private final RestaurantController restaurantController;
     private final DataValidator dataValidator;
+    private Launcher launcher;
 
     private RestaurantView() {
-        logger = LogManager.getLogger(RestaurantView.class);
-        commonView = CommonViewImpl.getInstance();
+        inputHandler = InputHandlerImpl.getInstance();
         restaurantController = RestaurantController.getInstance();
         dataValidator = DataValidator.getInstance();
     }
@@ -55,17 +56,21 @@ public class RestaurantView {
 
     /**
      * <p>
-     * Displays the main menu and gets the restaurant user choice for signup or login.
+     * Displays the main menu and gets the choice for signup or login.
      * </p>
      */
     public void displayMainMenu() {
-        logger.info("""
+        LOGGER.info("""
                 1.Signup
                 2.Login
                 3.Exit""");
-        final int userChoice = commonView.getValue();
+        final int value = inputHandler.getValue();
 
-        switch (userChoice) {
+        if (-1 == value) {
+            launcher.launch();
+        }
+
+        switch (value) {
             case 1:
                 signUp();
                 break;
@@ -76,45 +81,45 @@ public class RestaurantView {
                 exit();
                 break;
             default:
-                logger.warn("Invalid Choice");
+                LOGGER.warn("Invalid Choice");
                 displayMainMenu();
         }
     }
 
     /**
      * <p>
-     * Handles the restaurant user signup process.
+     * Handles the signup process.
      * </p>
      */
     private void signUp() {
-        logger.info("Restaurant Signup Or Enter * To Go Back");
+        LOGGER.info("Restaurant Signup Or Enter * To Go Back");
         final Restaurant restaurant = new Restaurant(getName(), getPhoneNumber(), getEmailId(), getPassword());
 
         if (restaurantController.createRestaurantProfile(restaurant)) {
-            logger.info("You Have To Add Atleast One Food From Your Restaurant");
-            addFood(restaurant.getRestaurantId());
-            displayHomePageMenu(restaurant.getRestaurantId());
+            LOGGER.info("You Have To Add Atleast One Food From Your Restaurant");
+            addFood(restaurant.getId());
+            displayHomePageMenu(restaurant.getId());
         } else {
-            logger.warn("Restaurant Already Exists");
+            LOGGER.warn("Restaurant Already Exists");
             displayMainMenu();
         }
     }
 
     /**
      * <p>
-     * Gets the valid username from the restaurant user.
+     * Gets the valid username.
      * </p>
      *
-     * @return The valid username of the user
+     * @return The valid username of the restaurant
      */
     private String getName() {
-        logger.info("Enter Your Name");
-        final String name = commonView.getInfo();
+        LOGGER.info("Enter Your Name");
+        final String name = inputHandler.getInfo();
 
         backOptionCheck(name);
 
         if (!dataValidator.validateUserName(name)) {
-            logger.warn("Enter A Valid Restaurant Name");
+            LOGGER.warn("Enter A Valid Restaurant Name");
             getName();
         }
 
@@ -123,19 +128,19 @@ public class RestaurantView {
 
     /**
      * <p>
-     * Gets the valid mobile number from the restaurant user.
+     * Gets the valid mobile number.
      * </p>
      *
-     * @return The mobile number of the restaurant user
+     * @return The mobile number of the restaurant
      */
     private String getPhoneNumber() {
-        logger.info("Enter Your Phone Number");
-        final String phoneNumber = commonView.getInfo();
+        LOGGER.info("Enter Your Phone Number");
+        final String phoneNumber = inputHandler.getInfo();
 
         backOptionCheck(phoneNumber);
 
         if (!dataValidator.validatePhoneNumber(phoneNumber)) {
-            logger.warn("Enter A Valid Phone Number");
+            LOGGER.warn("Enter A Valid Phone Number");
             getPhoneNumber();
         }
 
@@ -144,19 +149,19 @@ public class RestaurantView {
 
     /**
      * <p>
-     * Gets the valid email from the restaurant user.
+     * Gets the valid email.
      * </p>
      *
-     * @return The valid email of the restaurant user
+     * @return The valid email of the restaurant
      */
     private String getEmailId() {
-        logger.info("Enter Your EmailId");
-        final String emailId = commonView.getInfo();
+        LOGGER.info("Enter Your EmailId");
+        final String emailId = inputHandler.getInfo();
 
         backOptionCheck(emailId);
 
         if (!dataValidator.validateEmailId(emailId)) {
-            logger.warn("Enter A Valid EmailId");
+            LOGGER.warn("Enter A Valid EmailId");
             getEmailId();
         }
 
@@ -171,13 +176,13 @@ public class RestaurantView {
      * @return The validated password of the restaurant
      */
     private String getPassword() {
-        logger.info("Enter Your Password");
-        final String password = commonView.getInfo();
+        LOGGER.info("Enter Your Password");
+        final String password = inputHandler.getInfo();
 
         backOptionCheck(password);
 
         if (!dataValidator.validatePassword(password)) {
-            logger.warn("Enter A Valid Password");
+            LOGGER.warn("Enter A Valid Password");
             getPassword();
         }
 
@@ -203,37 +208,51 @@ public class RestaurantView {
      * </p>
      */
     private void login() {
-        final String phoneNumber = getPhoneNumber();
-        final Restaurant restaurant = restaurantController.getRestaurant(phoneNumber, getPassword());
+        LOGGER.info("""
+                 Login With
+                 1.Phone Number
+                 2.Email Id""");
+        Restaurant restaurant = null;
+        final int value = inputHandler.getValue();
+
+        switch (value) {
+            case 1:
+                restaurant = restaurantController.getRestaurant(RestaurantData.PHONE_NUMBER, getPhoneNumber(), getPassword());                break;
+            case 2:
+                restaurant = restaurantController.getRestaurant(RestaurantData.EMAIL_ID, getEmailId(), getPassword());                break;
+            default:
+                LOGGER.warn("Enter Valid Option");
+                login();
+        }
 
         if (null == restaurant) {
-            logger.warn("Restaurant Not Registered or Incorrect Password");
+            LOGGER.warn("Restaurant Not Registered or Incorrect Password");
             login();
         }
-        displayHomePageMenu(restaurant.getRestaurantId());
+        displayHomePageMenu(restaurant.getId());
     }
 
     /**
      * <p>
-     * Displays the home page for the restaurant user.
+     * Displays the home page for the restaurant.
      * </p>
      *
-     * @param restaurantId Represents the id of the current {@link Restaurant}
+     * @param restaurantId Represents the id of the restaurant
      */
     private void displayHomePageMenu(final long restaurantId) {
-        logger.info("""
+        LOGGER.info("""
                 To Go Back Enter *
                 1.Add Food
                 2.Remove Food
                 3.Edit Profile
                 4.Logout""");
-        final int userChoice = commonView.getValue();
+        final int value = inputHandler.getValue();
 
-        if (-1 == userChoice) {
+        if (-1 == value) {
             displayMainMenu();
         }
 
-        switch (userChoice) {
+        switch (value) {
             case 1:
                 addFood(restaurantId);
                 break;
@@ -247,7 +266,7 @@ public class RestaurantView {
                 displayMainMenu();
                 break;
             default:
-                logger.info("Enter Valid Input");
+                LOGGER.info("Enter Valid Input");
                 displayHomePageMenu(restaurantId);
         }
     }
@@ -257,17 +276,17 @@ public class RestaurantView {
      * Gets the restaurant details for login process.
      * </p>
      *
-     * @param restaurantId Represents the id of the current {@link Restaurant}
+     * @param restaurantId Represents the id of the restaurant
      * */
     private void addFood(final long restaurantId) {
-        logger.info("Enter The Food Name");
-        final String name = commonView.getInfo();
+        LOGGER.info("Enter The Food Name");
+        final String name = inputHandler.getInfo();
 
-        logger.info("Enter The Food Rate");
-        final float rate = commonView.getValue();
+        LOGGER.info("Enter The Food Rate");
+        final float rate = inputHandler.getValue();
 
-        logger.info("Enter The Food Quantity");
-        final int quantity = commonView.getValue();
+        LOGGER.info("Enter The Food Quantity");
+        final int quantity = inputHandler.getValue();
 
         restaurantController.addFood(new Food(name, rate, getType(), quantity), restaurantId);
         displayHomePageMenu(restaurantId);
@@ -275,20 +294,20 @@ public class RestaurantView {
 
     /**
      * <p>
-     * Gets the Food type from the restaurant user.
+     * Gets the Food type from the restaurant.
      * </p>
      *
      * @return The Food type id.
      */
     private FoodType getType() {
-        logger.info("""
+        LOGGER.info("""
                 Enter the Food Type
                 1.Veg
                 2.NonVeg""");
-        final FoodType foodType = FoodType.getTypeById(commonView.getValue());
+        final FoodType foodType = FoodType.getTypeById(inputHandler.getValue());
 
         if (null == foodType) {
-            logger.warn("Enter A Valid Id");
+            LOGGER.warn("Enter A Valid Id");
             getType();
         }
 
@@ -300,15 +319,15 @@ public class RestaurantView {
      * Removes the food from the restaurant menucard.
      * </p>
      *
-     * @param restaurantId Represents the id of the current {@link Restaurant}
+     * @param restaurantId Represents the id of the restaurant
      */
     private void removeFood(final long restaurantId) {
-        logger.info("""
+        LOGGER.info("""
                 Enter Type Of Food To Be Removed
                 1.VEG
                 2.NONVEG
                 3.VEG & NONVEG""");
-        final int foodType = commonView.getValue();
+        final int foodType = inputHandler.getValue();
 
         if (-1 == foodType) {
             displayHomePageMenu(restaurantId);
@@ -318,18 +337,18 @@ public class RestaurantView {
             final List<Food> menucard = getMenucard(restaurantId, foodType);
 
             if (null == menucard) {
-                logger.warn("Your Restaurant Currently Doesn't Have Any Available Items");
+                LOGGER.warn("Your Restaurant Currently Doesn't Have Any Available Items");
                 displayHomePageMenu(restaurantId);
             }
             displayFoods(menucard);
-            logger.info("Enter FoodId To Remove");
+            LOGGER.info("Enter FoodId To Remove");
             final long foodId = selectFood(restaurantId, menucard);
 
             restaurantController.removeFood(foodId);
-            logger.info("The Food Was Removed Successfully");
+            LOGGER.info("The Food Was Removed Successfully");
             displayHomePageMenu(restaurantId);
         } else {
-            logger.warn("Enter A Valid Option");
+            LOGGER.warn("Enter A Valid Option");
             removeFood(restaurantId);
         }
     }
@@ -342,13 +361,13 @@ public class RestaurantView {
      * @param menucard Represents the menucard of the restaurant
      */
     public void displayFoods(final List<Food> menucard) {
-        logger.info("""
+        LOGGER.info("""
                 Available Items:
                 ID | Name | Rate | Category""");
 
         for (final Food food : menucard) {
-            logger.info(String.format("%d %s %.2f %s", menucard.indexOf(food) + 1,
-                    food.getFoodName(), food.getRate(), food.getType()));
+            LOGGER.info(String.format("%d %s %.2f %s", menucard.indexOf(food) + 1,
+                    food.getName(), food.getRate(), food.getType()));
         }
     }
 
@@ -357,11 +376,11 @@ public class RestaurantView {
      * Gets the selection of food from the user.
      * </p>
      *
-     * @param restaurantId Represents the id of the current {@link Restaurant}
-     * @param menucard Represents the menucard of the selected restaurant
+     * @param restaurantId Represents the id of the restaurant
+     * @param menucard Represents the menucard of the restaurant
      */
     private long selectFood(final long restaurantId, final List<Food> menucard) {
-        final int selectedIndex = commonView.getValue();
+        final int selectedIndex = inputHandler.getValue();
 
         if (-1 == selectedIndex) {
             displayHomePageMenu(restaurantId);
@@ -371,9 +390,9 @@ public class RestaurantView {
         if (0 <= foodNumber && menucard.size() >= foodNumber) {
             final Food selectedFood = menucard.get(foodNumber);
 
-            return selectedFood.getFoodId();
+            return selectedFood.getId();
         } else {
-            logger.warn("Enter A Valid Option From The Menucard");
+            LOGGER.warn("Enter A Valid Option From The Menucard");
             return selectFood(restaurantId, menucard);
         }
     }
@@ -391,7 +410,7 @@ public class RestaurantView {
 
     /**
      * <p>
-     * Gets the selection of a restaurant by the user.
+     * Gets the menucard from the restaurant.
      * </p>
      *
      * @param restaurantId Represents the id of the current {@link Restaurant}
@@ -402,11 +421,11 @@ public class RestaurantView {
 
     /**
      * <p>
-     * Gets the selection of a restaurant by the user.
+     * Gets the quantity of food.
      * </p>
      *
-     * @param foodId Represents the id of the current {@link Food} selected by the user
-     * @return Available quantity from the selected restaurant
+     * @param foodId Represents the id of the food
+     * @return Available quantity of food from the restaurant
      */
     public int getQuantity(final long foodId) {
         return restaurantController.getQuantity(foodId);
@@ -414,55 +433,55 @@ public class RestaurantView {
 
     /**
      * <p>
-     * Displays the data of current restaurant user.
+     * Displays the data of restaurant.
      * </p>
      *
-     * @param restaurantId Represents the id of the current {@link Restaurant}
+     * @param restaurantId Represents the id of the restaurant
      */
     private void displayRestaurantData(final long restaurantId) {
         final Restaurant restaurant = restaurantController.getRestaurantById(restaurantId);
 
-        logger.info("\nYour Current Data\n");
-        logger.info(String.format("Name : %s", restaurant.getName()));
-        logger.info(String.format("Phone Number : %s", restaurant.getPhoneNumber()));
-        logger.info(String.format("Email Id : %s", restaurant.getEmailId()));
+        LOGGER.info("\nYour Current Data\n");
+        LOGGER.info(String.format("Name : %s", restaurant.getName()));
+        LOGGER.info(String.format("Phone Number : %s", restaurant.getPhoneNumber()));
+        LOGGER.info(String.format("Email Id : %s", restaurant.getEmailId()));
     }
 
     /**
      * <p>
-     * Updates the restaurant user information based on the chosen option.
+     * Updates the restaurant information based on the chosen option.
      * </p>
      *
-     * @param restaurantId Represents the id of the current {@link Restaurant}
+     * @param restaurantId Represents the id of the restaurant
      */
     private void updateRestaurantData(final long restaurantId) {
         displayRestaurantData(restaurantId);
-        logger.info("""
+        LOGGER.info("""
                 1.Update Name
                 2.Update Phone Number
                 3.Update EmailId
                 4.Update Password""");
-        final int choice = commonView.getValue();
+        final int value = inputHandler.getValue();
 
-        if (-1 == choice) {
+        if (-1 == value) {
             displayHomePageMenu(restaurantId);
         }
 
-        switch (choice) {
+        switch (value) {
             case 1:
-                restaurantController.updateRestaurantData(restaurantId, getName(), RestaurantDataUpdateType.NAME);
+                restaurantController.updateRestaurantData(restaurantId, getName(), RestaurantData.NAME);
                 break;
             case 2:
-                restaurantController.updateRestaurantData(restaurantId, getPhoneNumber(), RestaurantDataUpdateType.PHONENUMBER);
+                restaurantController.updateRestaurantData(restaurantId, getPhoneNumber(), RestaurantData.PHONE_NUMBER);
                 break;
             case 3:
-                restaurantController.updateRestaurantData(restaurantId, getEmailId(), RestaurantDataUpdateType.EMAILID);
+                restaurantController.updateRestaurantData(restaurantId, getEmailId(), RestaurantData.EMAIL_ID);
                 break;
             case 4:
-                restaurantController.updateRestaurantData(restaurantId, getPassword(), RestaurantDataUpdateType.PASSWORD );
+                restaurantController.updateRestaurantData(restaurantId, getPassword(), RestaurantData.PASSWORD );
                 break;
             default:
-                logger.warn("Enter A Valid Option");
+                LOGGER.warn("Enter A Valid Option");
                 updateRestaurantData(restaurantId);
         }
         updateRestaurantData(restaurantId);

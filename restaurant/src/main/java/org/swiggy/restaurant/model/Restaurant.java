@@ -1,5 +1,15 @@
 package org.swiggy.restaurant.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import org.swiggy.validator.validatorgroup.Restaurant.LoginRestaurantValidation;
+import org.swiggy.validator.validatorgroup.Restaurant.PostRestaurantValidator;
+import org.swiggy.validator.validatorgroup.Restaurant.GetRestaurantValidator;
+import org.swiggy.validator.validatorgroup.Restaurant.PutRestaurantValidator;
+
+import java.util.Objects;
+
 /**
  * <p>
  * Represents restaurant entity with properties and methods.
@@ -10,11 +20,20 @@ package org.swiggy.restaurant.model;
  */
 public class Restaurant {
 
-    private String name;
-    private String phoneNumber;
-    private String password;
-    private String emailId;
+    @Positive(message = "restaurant id can't be negative", groups = {GetRestaurantValidator.class, PutRestaurantValidator.class})
     private long id;
+    @NotNull(message = "name can't be null", groups = {PostRestaurantValidator.class})
+    @Pattern(message = "enter a valid name", regexp = "^[A-Za-z][A-Za-z\\s]{0,20}$", groups = {PostRestaurantValidator.class, PutRestaurantValidator.class})
+    private String name;
+    @NotNull(message = "phoneNumber can't be null", groups = {PostRestaurantValidator.class})
+    @Pattern(message = "enter a valid phone number", regexp = "^(0/91)?[6789]\\d{9}$", groups = {PostRestaurantValidator.class, PutRestaurantValidator.class, LoginRestaurantValidation.class})
+    private String phoneNumber;
+    @NotNull(message = "password can't be null", groups = {PostRestaurantValidator.class})
+    @Pattern(message = "enter a valid password", regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,15}$", groups = {PostRestaurantValidator.class, PutRestaurantValidator.class, LoginRestaurantValidation.class})
+    private String password;
+    @NotNull(message = "emailId can't be null", groups = {PostRestaurantValidator.class})
+    @Pattern(message = "enter a valid email id", regexp = "^[a-z][a-z\\d._]+@[a-z]{5,20}.[a-z]{2,3}$", groups = {PostRestaurantValidator.class, PutRestaurantValidator.class, LoginRestaurantValidation.class})
+    private String emailId;
 
     public Restaurant() {
     }
@@ -26,7 +45,7 @@ public class Restaurant {
         this.emailId = emailId;
     }
 
-    public void setRestaurantId(final long id) {
+    public void setId(final long id) {
         this.id = id;
     }
 
@@ -38,7 +57,7 @@ public class Restaurant {
         this.name = name;
     }
 
-    public long getRestaurantId() {
+    public long getId() {
         return id;
     }
 
@@ -64,5 +83,15 @@ public class Restaurant {
 
     public void setEmailId(final String emailId) {
         this.emailId = emailId;
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        return ! Objects.isNull(object) && getClass() == object.getClass() && this.hashCode() == object.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(emailId, phoneNumber);
     }
 }

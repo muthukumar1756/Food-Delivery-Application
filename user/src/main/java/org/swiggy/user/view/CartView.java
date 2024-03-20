@@ -4,12 +4,12 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.swiggy.user.controller.CartController;
+import org.swiggy.user.internal.controller.CartController;
 import org.swiggy.user.model.Cart;
 import org.swiggy.restaurant.model.Restaurant;
 import org.swiggy.user.model.User;
-import org.swiggy.common.view.CommonView;
-import org.swiggy.common.view.CommonViewImpl;
+import org.swiggy.common.inputhandler.InputHandler;
+import org.swiggy.common.inputhandler.impl.InputHandlerImpl;
 
 /**
  * <p>
@@ -21,16 +21,19 @@ import org.swiggy.common.view.CommonViewImpl;
  */
 public class CartView {
 
+    private static final Logger LOGGER = LogManager.getLogger(CartView.class);
     private static CartView cartView;
-    private final CommonView commonView;
-    private final Logger logger;
-    private final RestaurantDisplayView restaurantDisplayView;
+    private final InputHandler inputHandler;
+    private final RestaurantDataView restaurantDataView;
+    private final UserView userView;
+    private final OrderView orderView;
     private final CartController cartController;
 
     private CartView() {
-        logger = LogManager.getLogger(CartView.class);
-        commonView = CommonViewImpl.getInstance();
-        restaurantDisplayView = RestaurantDisplayView.getInstance();
+        inputHandler = InputHandlerImpl.getInstance();
+        restaurantDataView = RestaurantDataView.getInstance();
+        userView = UserView.getInstance();
+        orderView = OrderView.getInstance();
         cartController = CartController.getInstance();
     }
 
@@ -66,7 +69,7 @@ public class CartView {
      * Gets all the items in the user cart.
      * </p>
      *
-     * @param userId Represents the id of the current {@link User}
+     * @param userId Represents the id of the {@link User}
      * @return The cart list having list of cart items
      */
     public List<Cart> getCartList(final long userId) {
@@ -78,23 +81,23 @@ public class CartView {
      * Displays all the items in the user cart.
      * </p>
      *
-     * @param userId Represents the id of the current {@link User}
+     * @param userId Represents the id of the {@link User}
      * @param restaurantId Represents the id of the {@link Restaurant}
      */
     public void displayCart(final long userId, final long restaurantId) {
         final List<Cart> cart = getCartList(userId);
         float totalAmount = 0;
 
-        logger.info("""
+        LOGGER.info("""
                 Items In Your Cart
                 ID | Food Name | Quantity | Rate | Restaurant Name""");
 
         for(final Cart cartItem : cart) {
-            logger.info(String.format("%d %s %d %.2f %s", cart.indexOf(cartItem) + 1, cartItem.getFoodName(),
+            LOGGER.info(String.format("%d %s %d %.2f %s", cart.indexOf(cartItem) + 1, cartItem.getFoodName(),
                     cartItem.getQuantity(), cartItem.getAmount(), cartItem.getRestaurantName()));
             totalAmount += cartItem.getAmount();
         }
-        logger.info(String.format("Total Amount: RS %.2f \n", totalAmount));
+        LOGGER.info(String.format("Total Amount: RS %.2f \n", totalAmount));
         displayCartMenu(userId, restaurantId, cart);
     }
 
@@ -103,25 +106,25 @@ public class CartView {
      * Handles the users choice to place order or remove food from the user cart.
      * </p>
      *
-     * @param userId Represents the id of current {@link User}
+     * @param userId Represents the id of {@link User}
      * @param restaurantId Represents the id of the {@link Restaurant}
-     * @param cart Represents the {@link Cart} of the current user
+     * @param cart Represents the {@link Cart} of the user
      */
     public void displayCartMenu(final long userId, final long restaurantId, final List<Cart> cart) {
-        logger.info("""
+        LOGGER.info("""
                 1.Place Order
                 2.Remove Item From Cart
                 3.Clear All Item From Cart
                 4.Add More Food""");
-        final int userChoice = commonView.getValue();
+        final int userChoice = inputHandler.getValue();
 
         if (-1 == userChoice) {
-            restaurantDisplayView.addFoodOrPlaceOrder(userId, restaurantId);
+            restaurantDataView.addFoodOrPlaceOrder(userId, restaurantId);
         }
 
         switch (userChoice) {
             case 1:
-                OrderView.getInstance().placeOrder(userId, restaurantId);
+                orderView.placeOrder(userId, restaurantId);
                 break;
             case 2:
                 removeFood(userId, restaurantId, cart);
@@ -130,10 +133,10 @@ public class CartView {
                 clearCart(userId);
                 break;
             case 4:
-                restaurantDisplayView.addFoodOrPlaceOrder(userId, restaurantId);
+                restaurantDataView.addFoodOrPlaceOrder(userId, restaurantId);
                 break;
             default:
-                logger.warn("Enter A Valid Option");
+                LOGGER.warn("Enter A Valid Option");
                 displayCartMenu(userId, restaurantId, cart);
         }
     }
@@ -143,13 +146,13 @@ public class CartView {
      * Gets the users choice to remove the food from the user cart.
      * </p>
      *
-     * @param userId Represents the id of current {@link User}
+     * @param userId Represents the id of {@link User}
      * @param restaurantId Represents the id of the {@link Restaurant}
      * @param cart Represents the {@link Cart} list of the current user
      */
     private void removeFood(final long userId, final long restaurantId, final List<Cart> cart) {
-        logger.info("Enter The Item Number To Remove");
-        final int itemNumber = commonView.getValue();
+        LOGGER.info("Enter The Item Number To Remove");
+        final int itemNumber = inputHandler.getValue();
 
         if (-1 == itemNumber) {
             displayCartMenu(userId, restaurantId, cart);
@@ -160,41 +163,41 @@ public class CartView {
             final Cart cartItem = cart.get(selectedIndex);
 
             if (cartController.removeFood(cartItem.getId())) {
-                    logger.info("The Item Is Removed");
+                    LOGGER.info("The Item Is Removed");
             }
         } else {
-            logger.warn("Enter The Valid Item Number");
+            LOGGER.warn("Enter The Valid Item Number");
         }
         displayCart(userId, restaurantId);
     }
 
     /**
      * <p>
-     * Handles the users choice to display restaurant or logout.
+     * Handles the users choice to display restaurants or logout.
      * </p>
      *
-     * @param userId Represents the id of current {@link User}
+     * @param userId Represents the id of {@link User}
      */
     public void displayRestaurantsOrLogout(final long userId) {
-        logger.info("""
+        LOGGER.info("""
                 1.Continue Food Ordering
                 2.Logout""");
-        final int userChoice = commonView.getValue();
+        final int value = inputHandler.getValue();
 
-        if (-1 == userChoice) {
-            restaurantDisplayView.displayRestaurants(userId);
+        if (-1 == value) {
+            restaurantDataView.displayRestaurants(userId);
         }
 
-        switch (userChoice) {
+        switch (value) {
             case 1:
-                restaurantDisplayView.displayRestaurants(userId);
+                restaurantDataView.displayRestaurants(userId);
                 break;
             case 2:
-                logger.info("Your Account Is Logged Out");
-                UserView.getInstance().displayMainMenu();
+                LOGGER.info("Your Account Is Logged Out");
+                userView.displayMainMenu();
                 break;
             default:
-                logger.warn("Invalid Option");
+                LOGGER.warn("Invalid Option");
                 displayRestaurantsOrLogout(userId);
         }
     }
@@ -208,7 +211,7 @@ public class CartView {
      */
     public void clearCart(final long userId) {
         if (cartController.clearCart(userId)) {
-            logger.info("Your Cart Is Empty");
+            LOGGER.info("Your Cart Is Empty");
         }
         displayRestaurantsOrLogout(userId);
     }

@@ -4,15 +4,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.swiggy.common.hashgenerator.PasswordHashGenerator;
-import org.swiggy.user.controller.UserController;
+import org.swiggy.initiator.launcher.Launcher;
+import org.swiggy.user.internal.controller.UserController;
 import org.swiggy.user.model.User;
-import org.swiggy.validator.DataValidator;
-import org.swiggy.common.view.CommonView;
-import org.swiggy.common.view.CommonViewImpl;
+import org.swiggy.user.model.UserData;
+import org.swiggy.validator.regexvalidator.DataValidator;
+import org.swiggy.common.inputhandler.InputHandler;
+import org.swiggy.common.inputhandler.impl.InputHandlerImpl;
 
 /**
  * <p>
- *  Handles user creation, authentication and updates.
+ * Handles user creation, authentication and updates.
  * </p>
  *
  * @author Muthu kumar V
@@ -20,17 +22,21 @@ import org.swiggy.common.view.CommonViewImpl;
  */
 public class UserView {
 
+    private static final Logger LOGGER = LogManager.getLogger(UserView.class);
     private static UserView userView;
-    private final CommonView commonView;
-    private final Logger logger;
+    private final InputHandler inputHandler;
     private final UserController userController;
     private final DataValidator dataValidator;
+    private final RestaurantDataView restaurantDataView;
+    private final OrderView orderView;
+    private Launcher launcher;
 
     private UserView() {
-        logger = LogManager.getLogger(UserView.class);
-        commonView = CommonViewImpl.getInstance();
+        inputHandler = InputHandlerImpl.getInstance();
         userController = UserController.getInstance();
         dataValidator = DataValidator.getInstance();
+        restaurantDataView = RestaurantDataView.getInstance();
+        orderView = OrderView.getInstance();
     }
 
     /**
@@ -50,17 +56,21 @@ public class UserView {
 
     /**
      * <p>
-     * Displays the main menu and gets the user choice for signup or login.
+     * Displays the main menu and gets the option for signup or login.
      * </p>
      */
     public void displayMainMenu() {
-        logger.info("""
+        LOGGER.info("""
                     1.Signup
                     2.Login
                     3.Exit""");
-        final int userChoice = commonView.getValue();
+        final int value = inputHandler.getValue();
 
-        switch (userChoice) {
+        if (-1 == value) {
+            launcher.launch();
+        }
+
+        switch (value) {
             case 1:
                 signUp();
                 break;
@@ -71,7 +81,7 @@ public class UserView {
                 exit();
                 break;
             default:
-                logger.warn("Invalid UserChoice");
+                LOGGER.warn("Invalid UserChoice");
                 displayMainMenu();
         }
     }
@@ -82,13 +92,13 @@ public class UserView {
      * </p>
      */
     private void signUp() {
-        logger.info("User Signup Or Enter * To Go Back");
+        LOGGER.info("User Signup Or Enter * To Go Back");
         final User user = new User(getName(), getPhoneNumber(), getEmailId(), getPassword());
 
         if (userController.createUserProfile(user)) {
             displayHomePageMenu(user.getId());
         } else {
-            logger.warn("User Already Exists");
+            LOGGER.warn("User Already Exists");
             displayMainMenu();
         }
     }
@@ -101,13 +111,13 @@ public class UserView {
      * @return The valid username of the user
      */
     private String getName() {
-        logger.info("Enter Your Name");
-        final String name = commonView.getInfo();
+        LOGGER.info("Enter Your Name");
+        final String name = inputHandler.getInfo();
 
         isBackNavigation(name);
 
         if (!dataValidator.validateUserName(name)) {
-            logger.warn("Enter A Valid User Name");
+            LOGGER.warn("Enter A Valid User Name");
             getName();
         }
 
@@ -122,13 +132,13 @@ public class UserView {
      * @return The mobile number of the user
      */
     private String getPhoneNumber() {
-        logger.info("Enter Your Phone Number");
-        final String phoneNumber = commonView.getInfo();
+        LOGGER.info("Enter Your Phone Number");
+        final String phoneNumber = inputHandler.getInfo();
 
         isBackNavigation(phoneNumber);
 
         if (!dataValidator.validatePhoneNumber(phoneNumber)) {
-            logger.warn("Enter A Valid Phone Number");
+            LOGGER.warn("Enter A Valid Phone Number");
             getPhoneNumber();
         }
 
@@ -143,13 +153,13 @@ public class UserView {
      * @return The valid email of the user
      */
     private String getEmailId() {
-        logger.info("Enter Your EmailId");
-        final String emailId = commonView.getInfo();
+        LOGGER.info("Enter Your EmailId");
+        final String emailId = inputHandler.getInfo();
 
         isBackNavigation(emailId);
 
         if (!dataValidator.validateEmailId(emailId)) {
-            logger.warn("Enter A Valid EmailId");
+            LOGGER.warn("Enter A Valid EmailId");
             getEmailId();
         }
 
@@ -164,13 +174,13 @@ public class UserView {
      * @return The validated password of the user
      */
     private String getPassword() {
-        logger.info("Enter Your Password");
-        final String password = commonView.getInfo();
+        LOGGER.info("Enter Your Password");
+        final String password = inputHandler.getInfo();
 
         isBackNavigation(password);
 
         if (!dataValidator.validatePassword(password)) {
-            logger.warn("Enter A Valid Password");
+            LOGGER.warn("Enter A Valid Password");
             getPassword();
         }
 
@@ -196,70 +206,90 @@ public class UserView {
      * </p>
      */
      private void login() {
-        final String phoneNumber = getPhoneNumber();
-        final User currentUser = userController.getUser(phoneNumber, getPassword());
+         LOGGER.info("""
+                 Login With
+                 1.Phone Number
+                 2.Email Id""");
+         User user = null;
+         final int value = inputHandler.getValue();
 
-        if (null == currentUser) {
-            logger.warn("User Not Registered Or Incorrect Password");
+         if (-1 == value) {
+             displayMainMenu();
+         }
+
+         switch (value) {
+             case 1:
+                 user = userController.getUser(UserData.PHONE_NUMBER, getPhoneNumber(), getPassword());
+                 break;
+             case 2:
+                 user = userController.getUser(UserData.EMAIL_ID, getEmailId(), getPassword());
+                 break;
+             default:    
+                 LOGGER.warn("Enter Valid Option");
+                 login();
+         }
+
+        if (null == user) {
+            LOGGER.warn("User Not Registered Or Incorrect Password");
             login();
         }
-        displayHomePageMenu(currentUser.getId());
+        displayHomePageMenu(user.getId());
     }
-
+    
     /**
      * <p>
      * Displays the home page menu of the application
      * </p>
      *
-     * @param userId Represents the id of the current {@link User}
+     * @param userId Represents the id of the {@link User}
      */
     public void displayHomePageMenu(final long userId) {
-        logger.info("""
+        LOGGER.info("""
                 To Go Back Enter *
                 1.Display Restaurants
                 2.Edit User Profile
                 3.View Orders
                 4.Logout""");
-        final int userChoice = commonView.getValue();
+        final int value = inputHandler.getValue();
 
-        if (-1 == userChoice) {
+        if (-1 == value) {
             displayMainMenu();
         }
 
-        switch (userChoice) {
+        switch (value) {
             case 1:
-                RestaurantDisplayView.getInstance().displayRestaurants(userId);
+                restaurantDataView.displayRestaurants(userId);
                 break;
             case 2:
                 updateUserData(userId);
                 break;
             case 3:
-                OrderView.getInstance().displayOrders(userId);
+                orderView.displayOrders(userId);
                 displayHomePageMenu(userId);
                 break;
             case 4:
                 displayMainMenu();
                 break;
             default:
-                logger.warn("Enter A Valid Option");
+                LOGGER.warn("Enter A Valid Option");
                 displayHomePageMenu(userId);
         }
     }
 
     /**
      * <p>
-     * Displays the data of current user.
+     * Displays the data of user.
      * </p>
      *
-     * @param userId Represents the id of the current {@link User}
+     * @param userId Represents the id of the {@link User}
      */
     private void displayUserData(final long userId) {
         final User currentUser = userController.getUserById(userId);
 
-        logger.info("\nYour Current Data\n");
-        logger.info(String.format("User Name : %s", currentUser.getName()));
-        logger.info(String.format("Phone Number : %s", currentUser.getPhoneNumber()));
-        logger.info(String.format("Email Id : %s", currentUser.getEmailId()));
+        LOGGER.info("\nYour Current Data\n");
+        LOGGER.info(String.format("User Name : %s", currentUser.getName()));
+        LOGGER.info(String.format("Phone Number : %s", currentUser.getPhoneNumber()));
+        LOGGER.info(String.format("Email Id : %s", currentUser.getEmailId()));
     }
 
     /**
@@ -267,36 +297,36 @@ public class UserView {
      * Updates the users information based on the chosen option.
      * </p>
      *
-     * @param userId Represents the id of the current {@link User}
+     * @param userId Represents the id of the {@link User}
      */
     private void updateUserData(final long userId) {
         displayUserData(userId);
-        logger.info("""
+        LOGGER.info("""
                 1.Update Name
                 2.Update Phone Number
                 3.Update EmailId
                 4.Update Password""");
-        final int choice = commonView.getValue();
+        final int value = inputHandler.getValue();
 
-        if (-1 == choice) {
+        if (-1 == value) {
             displayHomePageMenu(userId);
         }
 
-        switch (choice) {
+        switch (value) {
             case 1:
-                userController.updateUserData(userId, UserDataUpdateType.NAME, getName());
+                userController.updateUserData(userId, UserData.NAME, getName());
                 break;
             case 2:
-                userController.updateUserData(userId, UserDataUpdateType.PHONENUMBER, getPhoneNumber());
+                userController.updateUserData(userId, UserData.PHONE_NUMBER, getPhoneNumber());
                 break;
             case 3:
-                userController.updateUserData(userId, UserDataUpdateType.EMAILID, getEmailId());
+                userController.updateUserData(userId, UserData.EMAIL_ID, getEmailId());
                 break;
             case 4:
-                userController.updateUserData(userId, UserDataUpdateType.PASSWORD, getPassword());
+                userController.updateUserData(userId, UserData.PASSWORD, getPassword());
                 break;
             default:
-                logger.warn("Enter A Valid Option");
+                LOGGER.warn("Enter A Valid Option");
                 updateUserData(userId);
         }
         updateUserData(userId);

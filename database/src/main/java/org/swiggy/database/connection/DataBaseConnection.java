@@ -36,9 +36,9 @@ public class DataBaseConnection {
     public static Connection getConnection() {
 
         if (null == connection) {
+            final ClassLoader classLoader = DataBaseConnection.class.getClassLoader();
 
-            try (final InputStream inputStream = Class.forName(DataBaseConnection.class.getName())
-                    .getClassLoader().getResourceAsStream("Database.properties")) {
+            try (final InputStream inputStream = classLoader.getResourceAsStream("Database.properties")) {
                 final Properties properties = new Properties();
 
                 properties.load(inputStream);

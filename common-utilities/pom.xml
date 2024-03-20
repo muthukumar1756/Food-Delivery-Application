@@ -33,7 +33,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Activator>org.swiggy.common.CommonActivator</Bundle-Activator>
-                        <Export-Package>org.swiggy.common*</Export-Package>
+                        <Export-Package>org.swiggy.common.*</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

@@ -29,6 +29,7 @@
         <module>common-utilities</module>
         <module>exception</module>
         <module>swiggy-feature</module>
+        <module>app-launcher</module>
     </modules>
 
     <dependencies>
@@ -66,6 +67,18 @@
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
             <version>2.14.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>8.0.1.Final</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

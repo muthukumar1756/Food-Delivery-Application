@@ -1,6 +1,6 @@
 package org.swiggy.common.exception;
 
-import org.swiggy.exception.UserException;
+import org.swiggy.exception.customexception.UserException;
 
 /**
  * <p>

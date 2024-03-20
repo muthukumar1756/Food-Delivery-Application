@@ -26,4 +26,14 @@ public enum CartStatus {
     public static int getId(CartStatus cartStatus) {
         return cartStatus.id;
     }
+
+    public static CartStatus getTypeById(final int id) {
+        for (CartStatus type : values()) {
+
+            if (type.id == id) {
+                return type;
+            }
+        }
+        return null;
+    }
 }

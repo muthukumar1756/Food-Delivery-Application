@@ -2,14 +2,18 @@ package org.swiggy.restaurant.initializer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.swiggy.restaurant.controller.RestaurantController;
-import org.swiggy.restaurant.exception.RestaurantFileAccessException;
-import org.swiggy.restaurant.exception.FoodDataLoadFailureException;
+import org.swiggy.restaurant.internal.controller.RestaurantController;
+import org.swiggy.restaurant.internal.exception.RestaurantFileAccessException;
+import org.swiggy.restaurant.internal.exception.FoodDataLoadFailureException;
 import org.swiggy.restaurant.model.Food;
 import org.swiggy.restaurant.model.FoodType;
 import org.swiggy.restaurant.model.Restaurant;
@@ -82,7 +86,7 @@ public class RestaurantInitializer {
      * Creates food objects from loaded restaurant paths.
      * </p>
      *
-     * @param restaurants Represents all the {@link Restaurant}
+     * @param restaurants Represents all the restaurants
      */
     private void loadMenuCardData(final List<Restaurant> restaurants) {
         final Map<Food, Long> menuCard = new HashMap<>();
@@ -105,9 +109,9 @@ public class RestaurantInitializer {
                     final int foodQuantity = Integer.parseInt(restaurantProperty[3]);
 
                     if (type.equalsIgnoreCase(FoodType.VEG.name())) {
-                        menuCard.put(new Food(name, rate, FoodType.VEG, foodQuantity), restaurant.getRestaurantId());
+                        menuCard.put(new Food(name, rate, FoodType.VEG, foodQuantity), restaurant.getId());
                     } else {
-                        menuCard.put(new Food(name, rate, FoodType.NONVEG, foodQuantity), restaurant.getRestaurantId());
+                        menuCard.put(new Food(name, rate, FoodType.NONVEG, foodQuantity), restaurant.getId());
                     }
                 }
             } catch (IOException message) {

@@ -44,6 +44,12 @@
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.swiggy</groupId>
+            <artifactId>app-launcher</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -57,7 +63,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Activator>org.swiggy.user.UserActivator</Bundle-Activator>
-                        <Export-Package>org.swiggy.user*</Export-Package>
+                        <Private-package>org.swiggy.user.internal</Private-package>
+                        <Export-Package>org.swiggy.user.*</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

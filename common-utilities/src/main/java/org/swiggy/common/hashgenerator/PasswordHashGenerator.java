@@ -38,7 +38,7 @@ public class PasswordHashGenerator {
 
     /**
      * <p>
-     * Hashes the user password.
+     * Hashes and returns the password.
      * </p>
      *
      * @param password password of the current user

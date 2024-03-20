@@ -38,6 +38,12 @@
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.swiggy</groupId>
+            <artifactId>app-launcher</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -51,7 +57,8 @@
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Activator>org.swiggy.restaurant.RestaurantActivator</Bundle-Activator>
-                        <Export-Package>org.swiggy.restaurant*</Export-Package>
+                        <Private-Package>org.swiggy.restaurant.internal</Private-Package>
+                        <Export-Package>org.swiggy.restaurant.*</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

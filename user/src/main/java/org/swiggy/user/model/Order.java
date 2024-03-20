@@ -1,5 +1,14 @@
 package org.swiggy.user.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import org.swiggy.validator.validatorgroup.cart.PostCartValidator;
+import org.swiggy.validator.validatorgroup.order.GetOrderValidator;
+import org.swiggy.validator.validatorgroup.order.PostOrderValdiator;
+
+import java.util.Objects;
+
 /**
  * <p>
  * Represents order entity with properties and methods.
@@ -11,14 +20,32 @@ package org.swiggy.user.model;
 public class Order {
 
     private long id;
-    private long user_id;
+    @NotNull(message = "userId can't be null", groups = {PostOrderValdiator.class, GetOrderValidator.class})
+    @Positive(message = "user id can't be negative", groups = {PostOrderValdiator.class, GetOrderValidator.class})
+    private long userId;
+    @NotNull(message = "cartId can't be null", groups = {PostOrderValdiator.class})
+    @Positive(message = "cart id can't be negative", groups = {PostOrderValdiator.class})
     private long cartId;
+    @NotNull(message = "foodId can't be null", groups = {PostOrderValdiator.class})
+    @Positive(message = "restaurant id can't be negative", groups = {PostOrderValdiator.class})
     private long foodId;
+    @NotNull(message = "foodName can't be null", groups = {PostOrderValdiator.class})
+    @Pattern(message = "enter a valid food name", regexp = "^[A-Za-z][A-Za-z\\s]{0,20}$", groups = {PostCartValidator.class})
     private String foodName;
+    @NotNull(message = "restaurantId can't be null", groups = {PostOrderValdiator.class})
+    @Positive(message = "Restaurant Id Can't Be Negative", groups = {PostOrderValdiator.class})
     private long restaurantId;
+    @NotNull(message = "restaurantName can't be null", groups = {PostOrderValdiator.class})
+    @Pattern(message = "enter a valid restaurant name", regexp = "^[A-Za-z][A-Za-z\\s]{0,20}$", groups = {PostCartValidator.class})
     private String restaurantName;
+    @NotNull(message = "quantity can't be null", groups = {PostOrderValdiator.class})
+    @Positive(message = "quantity can't be negative", groups = {PostOrderValdiator.class})
     private int quantity;
+    @NotNull(message = "amount can't be null", groups = {PostOrderValdiator.class})
+    @Positive(message = "amount can't be negative", groups = {PostOrderValdiator.class})
     private float amount;
+    @NotNull(message = "addressId can't be null", groups = {PostOrderValdiator.class})
+    @Positive(message = "address id can't be negative", groups = {PostOrderValdiator.class})
     private long addressId;
 
     public Order() {
@@ -80,12 +107,12 @@ public class Order {
         this.addressId = addressId;
     }
 
-    public long getUser_id() {
-        return user_id;
+    public long getUserId() {
+        return userId;
     }
 
-    public void setUser_id(final long user_id) {
-        this.user_id = user_id;
+    public void setUserId(final long userId) {
+        this.userId = userId;
     }
 
     public long getRestaurantId() {
@@ -102,5 +129,15 @@ public class Order {
 
     public void setFoodId(final long foodId) {
         this.foodId = foodId;
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        return ! Objects.isNull(object) && getClass() == object.getClass() && this.hashCode() == object.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, userId);
     }
 }

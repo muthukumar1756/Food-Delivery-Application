@@ -6,14 +6,14 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.swiggy.user.controller.OrderController;
+import org.swiggy.user.internal.controller.OrderController;
 import org.swiggy.user.model.Address;
 import org.swiggy.user.model.Cart;
 import org.swiggy.user.model.Order;
 import org.swiggy.user.model.User;
 import org.swiggy.restaurant.model.Restaurant;
-import org.swiggy.common.view.CommonView;
-import org.swiggy.common.view.CommonViewImpl;
+import org.swiggy.common.inputhandler.InputHandler;
+import org.swiggy.common.inputhandler.impl.InputHandlerImpl;
 
 /**
  * <p>
@@ -25,17 +25,18 @@ import org.swiggy.common.view.CommonViewImpl;
  */
 public class OrderView {
 
+    private static final Logger LOGGER = LogManager.getLogger(OrderView.class);
     private static OrderView orderView;
-    private final CommonView commonView;
-    private final Logger logger;
+    private final InputHandler inputHandler;
+    private final UserView userView;
     private final CartView cartView;
-    private final RestaurantDisplayView restaurantDisplayView;
+    private final RestaurantDataView restaurantDataView;
     private final OrderController orderController;
 
     private OrderView() {
-        logger = LogManager.getLogger(OrderView.class);
-        commonView = CommonViewImpl.getInstance();
-        restaurantDisplayView = RestaurantDisplayView.getInstance();
+        inputHandler = InputHandlerImpl.getInstance();
+        restaurantDataView = RestaurantDataView.getInstance();
+        userView = UserView.getInstance();
         cartView = CartView.getInstance();
         orderController = OrderController.getInstance();
     }
@@ -67,15 +68,15 @@ public class OrderView {
         final List<Cart> cartList = cartView.getCartList(userId);
 
         if (!cartList.isEmpty()) {
-            logger.info("Select Address\n1.From Previous Oder\n2.New Address");
+            LOGGER.info("Select Address\n1.From Previous Oder\n2.New Address");
             long addressId = 0;
-            final int userChoice = commonView.getValue();
+            final int value = inputHandler.getValue();
 
-            if (-1 == userChoice) {
+            if (-1 == value) {
                 cartView.displayCartMenu(userId, restaurantId, cartList);
             }
 
-            switch (userChoice) {
+            switch (value) {
                 case 1:
                     addressId = displayAddress(userId);
                     break;
@@ -83,12 +84,12 @@ public class OrderView {
                     addressId = getDeliveryAddress(userId);
                     break;
                 default:
-                    logger.info("Enter A Valid Input");
+                    LOGGER.info("Enter A Valid Input");
             }
             final List<Order> orderList = getOrders(userId, cartList, addressId);
 
             if (orderController.placeOrder(orderList)) {
-                logger.info("\nYour Order Is Placed..\nWill Shortly Delivered To Your Address");
+                LOGGER.info("\nYour Order Is Placed..\nWill Shortly Delivered To Your Address");
                 cartView.displayRestaurantsOrLogout(userId);
             }
         } else {
@@ -113,7 +114,7 @@ public class OrderView {
             final Order order = new Order();
 
             order.setCartId(cartItem.getId());
-            order.setUser_id(userId);
+            order.setUserId(userId);
             order.setRestaurantId(cartItem.getRestaurantId());
             order.setFoodId(cartItem.getFoodId());
             order.setQuantity(cartItem.getQuantity());
@@ -136,17 +137,17 @@ public class OrderView {
         final List<Address> addressList = orderController.getAddress(userId);
 
         if (addressList.isEmpty()) {
-            logger.info("You Didn't Have Any Previous Order Addresses");
+            LOGGER.info("You Didn't Have Any Previous Order Addresses");
 
             return getDeliveryAddress(userId);
         } else {
             for (final Address address : addressList) {
-                logger.info(String.format("%d %s %s %s %s %s", addressList.indexOf(address) + 1,
+                LOGGER.info(String.format("%d %s %s %s %s %s", addressList.indexOf(address) + 1,
                         address.getHouseNumber(), address.getStreetName(), address.getAreaName(), address.getCityName(),
                         address.getPincode()));
             }
-            logger.info("Enter The Delivery Address Id");
-            final int index = commonView.getValue() - 1;
+            LOGGER.info("Enter The Delivery Address Id");
+            final int index = inputHandler.getValue() - 1;
 
             return addressList.get(index).getId();
         }
@@ -163,22 +164,22 @@ public class OrderView {
     private long getDeliveryAddress(final long userId) {
         final Address address = new Address();
 
-        logger.info("""
+        LOGGER.info("""
                 Fill Your Address
                 Enter Your House Number""");
-        final String houseNumber = commonView.getInfo();
+        final String houseNumber = inputHandler.getInfo();
 
-        logger.info("Enter Your Street Name");
-        final String streetName = commonView.getInfo();
+        LOGGER.info("Enter Your Street Name");
+        final String streetName = inputHandler.getInfo();
 
-        logger.info("Enter Your Area Name");
-        final String areaName = commonView.getInfo();
+        LOGGER.info("Enter Your Area Name");
+        final String areaName = inputHandler.getInfo();
 
-        logger.info("Enter Your City Name");
-        final String cityName = commonView.getInfo();
+        LOGGER.info("Enter Your City Name");
+        final String cityName = inputHandler.getInfo();
 
-        logger.info("Enter Your Pin Code");
-        final String pinCode = commonView.getInfo();
+        LOGGER.info("Enter Your Pin Code");
+        final String pinCode = inputHandler.getInfo();
 
         address.setHouseNumber(houseNumber);
         address.setStreetName(streetName);
@@ -199,27 +200,27 @@ public class OrderView {
      * @param userId Represents the id of the current {@link User}
      */
     private void handleEmptyCart(final long userId) {
-        logger.info("""
+        LOGGER.info("""
                 Your Order Is Empty
                 Please Select A option From Below:
                 1.To Order Foods
                 2.Logout""");
-        final int userChoice = commonView.getValue();
+        final int value = inputHandler.getValue();
 
-        if (-1 == userChoice) {
-            restaurantDisplayView.displayRestaurants(userId);
+        if (-1 == value) {
+            restaurantDataView.displayRestaurants(userId);
         }
 
-        switch (userChoice) {
+        switch (value) {
             case 1:
-                restaurantDisplayView.displayRestaurants(userId);
+                restaurantDataView.displayRestaurants(userId);
                 break;
             case 2:
-                logger.info("Your Account Is Logged Out");
-                UserView.getInstance().displayMainMenu();
+                LOGGER.info("Your Account Is Logged Out");
+                userView.displayMainMenu();
                 break;
             default:
-                logger.warn("Enter A Valid Option");
+                LOGGER.warn("Enter A Valid Option");
                 handleEmptyCart(userId);
         }
     }
@@ -235,14 +236,14 @@ public class OrderView {
         final List<Order> orders = orderController.getOrders(userId);
 
         if (orders.isEmpty()) {
-            logger.info("No Placed Orders");
+            LOGGER.info("No Placed Orders");
         } else {
-            logger.info("""
+            LOGGER.info("""
                     Your Orders
                     Name| Food | Quantity | Amount""");
 
             for (final Order order : orders) {
-                logger.info(String.format("%s %s %d %.2f", order.getRestaurantName(), order.getFoodName(),
+                LOGGER.info(String.format("%s %s %d %.2f", order.getRestaurantName(), order.getFoodName(),
                         order.getQuantity(), order.getAmount()));
             }
         }

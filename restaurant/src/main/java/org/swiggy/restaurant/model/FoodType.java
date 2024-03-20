@@ -9,6 +9,7 @@ package org.swiggy.restaurant.model;
  * @version 1.0
  */
 public enum FoodType {
+
     VEG(1),
     NONVEG(2);
 

@@ -13,6 +13,15 @@
     <artifactId>validator</artifactId>
     <packaging>bundle</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.swiggy</groupId>
+            <artifactId>common-utilities</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -24,7 +33,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Activator>org.swiggy.validator.ValidatorActivator</Bundle-Activator>
-                        <Export-Package>org.swiggy.validator*</Export-Package>
+                        <Export-Package>org.swiggy.validator.*</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
