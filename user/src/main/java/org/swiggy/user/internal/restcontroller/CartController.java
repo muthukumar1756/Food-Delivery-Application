@@ -9,13 +9,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.PathParam;
 
 import java.util.List;
-import java.util.Set;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import org.hibernate.validator.HibernateValidator;
-import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.swiggy.common.json.JacksonFactory;
 import org.swiggy.common.json.JsonArray;
 import org.swiggy.common.json.JsonObject;
@@ -23,10 +17,12 @@ import org.swiggy.user.model.Cart;
 import org.swiggy.user.model.User;
 import org.swiggy.user.internal.service.CartService;
 import org.swiggy.user.internal.service.impl.CartServiceImpl;
+import org.swiggy.validator.hibernatevalidator.ValidatorFactory;
 import org.swiggy.validator.validatorgroup.cart.ClearCartValidator;
 import org.swiggy.validator.validatorgroup.cart.DeleteCartValidator;
 import org.swiggy.validator.validatorgroup.cart.PostCartValidator;
 import org.swiggy.validator.validatorgroup.cart.GetCartValidator;
+import org.swiggy.validator.validatorgroup.order.PostOrderValdiator;
 
 /**
  * <p>
@@ -42,13 +38,12 @@ public class CartController {
     private static CartController cartController;
     private final CartService cartService;
     private final JacksonFactory jacksonFactory;
-    private final Validator validator;
+    private final ValidatorFactory validatorFactory;
 
     private CartController() {
         cartService = CartServiceImpl.getInstance();
         jacksonFactory = JacksonFactory.getInstance();
-        validator = Validation.byProvider(HibernateValidator.class).configure()
-                .messageInterpolator(new ParameterMessageInterpolator()).buildValidatorFactory().getValidator();
+        validatorFactory = ValidatorFactory.getInstance();
     }
 
     /**
@@ -77,16 +72,9 @@ public class CartController {
     @POST
     @Consumes("application/json")
     public byte[] addFoodToCart(final Cart cart) {
-        final Set<ConstraintViolation<Cart>> violationSet = validator.validate(cart,
-                PostCartValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(cart, PostCartValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(), violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();
@@ -113,16 +101,9 @@ public class CartController {
         final Cart cart = new Cart();
 
         cart.setUserId(userId);
-        final Set<ConstraintViolation<Cart>> violationSet = validator.validate(cart,
-                GetCartValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(cart, GetCartValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(), violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final List<Cart> cartList = cartService.getCart(userId);
@@ -148,16 +129,9 @@ public class CartController {
         final Cart cart = new Cart();
 
         cart.setId(cartId);
-        final Set<ConstraintViolation<Cart>> violationSet = validator.validate(cart,
-                DeleteCartValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(cart, DeleteCartValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(), violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();
@@ -183,16 +157,9 @@ public class CartController {
         final Cart cart = new Cart();
 
         cart.setUserId(userId);
-        final Set<ConstraintViolation<Cart>> violationSet = validator.validate(cart,
-                ClearCartValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(cart, ClearCartValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(), violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();

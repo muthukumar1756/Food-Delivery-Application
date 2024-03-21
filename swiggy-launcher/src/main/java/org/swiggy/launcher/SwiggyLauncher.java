@@ -45,7 +45,6 @@ public class SwiggyLauncher implements Launcher {
      * <p>
      * selects the role of the person.
      * </p>
-     *
      */
     public void launch() {
         LOGGER.info("""

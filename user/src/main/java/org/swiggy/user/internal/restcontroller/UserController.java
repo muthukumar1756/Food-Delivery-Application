@@ -8,24 +8,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PathParam;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import org.hibernate.validator.HibernateValidator;
-import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.swiggy.common.json.JacksonFactory;
 import org.swiggy.common.json.JsonArray;
 import org.swiggy.common.json.JsonObject;
-import org.swiggy.user.model.User;
 import org.swiggy.user.internal.service.UserService;
 import org.swiggy.user.internal.service.impl.UserServiceImpl;
+import org.swiggy.user.model.User;
 import org.swiggy.user.model.UserData;
+import org.swiggy.validator.hibernatevalidator.ValidatorFactory;
 import org.swiggy.validator.validatorgroup.user.LoginUserValidator;
 import org.swiggy.validator.validatorgroup.user.PostUserValidator;
 import org.swiggy.validator.validatorgroup.user.GetUserValidator;
 import org.swiggy.validator.validatorgroup.user.PutUserValidator;
-
-import java.util.Set;
 
 /**
  * <p>
@@ -40,13 +34,12 @@ public class UserController {
     private static UserController userController;
     private final UserService userService;
     private final JacksonFactory jacksonFactory;
-    private final Validator validator;
+    private final ValidatorFactory validatorFactory;
 
     private UserController() {
         userService = UserServiceImpl.getInstance();
         jacksonFactory = JacksonFactory.getInstance();
-        validator = Validation.byProvider(HibernateValidator.class).configure()
-                .messageInterpolator(new ParameterMessageInterpolator()).buildValidatorFactory().getValidator();
+        validatorFactory = ValidatorFactory.getInstance();
     }
 
     /**
@@ -76,17 +69,9 @@ public class UserController {
     @Consumes("application/json")
     @Produces("application/json")
     public byte[] createUserProfile(final User user) {
-        final Set<ConstraintViolation<User>> violationSet = validator.validate(user,
-                PostUserValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(user, PostUserValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();
@@ -129,22 +114,15 @@ public class UserController {
             switch (type) {
                 case PHONE_NUMBER -> user.setPhoneNumber(value);
                 case EMAIL_ID -> user.setEmailId(value);
-                default -> jsonViolations.add(jacksonFactory.createObjectNode().put("error", "invalid data entered"));
             }
         }
-        final Set<ConstraintViolation<User>> violationSet = validator.validate(user,
-                LoginUserValidator.class);
+        jsonViolations.addArray(validatorFactory.getViolations(user, LoginUserValidator.class));
 
-        if (!violationSet.isEmpty() || !jsonViolations.isEmpty()) {
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final User userPojo = userService.getUser(type, value, password);
+
         if (null != userPojo) {
             final String message = String.join("","user login successful welcome ",userPojo.getName());
 
@@ -169,17 +147,9 @@ public class UserController {
         final User userPojo = new User();
 
         userPojo.setId(userId);
-        final Set<ConstraintViolation<User>> violationSet = validator.validate(userPojo,
-                GetUserValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(userPojo, GetUserValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();
@@ -227,20 +197,11 @@ public class UserController {
                 case PHONE_NUMBER -> user.setPhoneNumber(userData);
                 case PASSWORD -> user.setPassword(userData);
                 case EMAIL_ID -> user.setEmailId(userData);
-                default -> jsonViolations.add(jacksonFactory.createObjectNode()
-                        .put("error", "invalid data entered"));
             }
         }
-        final Set<ConstraintViolation<User>> violationSet = validator.validate(user,
-                PutUserValidator.class);
+        jsonViolations.addArray(validatorFactory.getViolations(user, PutUserValidator.class));
 
-        if (!violationSet.isEmpty() || !jsonViolations.isEmpty()) {
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
 

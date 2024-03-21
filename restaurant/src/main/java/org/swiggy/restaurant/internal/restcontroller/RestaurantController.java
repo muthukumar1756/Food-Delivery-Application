@@ -10,19 +10,16 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.PathParam;
 
 import java.util.List;
-import java.util.Set;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import org.hibernate.validator.HibernateValidator;
-import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.swiggy.common.json.JacksonFactory;
 import org.swiggy.common.json.JsonArray;
-import org.swiggy.restaurant.model.*;
 import org.swiggy.restaurant.internal.service.RestaurantService;
 import org.swiggy.restaurant.internal.service.impl.RestaurantServiceImpl;
 import org.swiggy.common.json.JsonObject;
+import org.swiggy.restaurant.model.Restaurant;
+import org.swiggy.restaurant.model.Food;
+import org.swiggy.restaurant.model.RestaurantData;
+import org.swiggy.validator.hibernatevalidator.ValidatorFactory;
 import org.swiggy.validator.validatorgroup.Restaurant.LoginRestaurantValidation;
 import org.swiggy.validator.validatorgroup.Restaurant.PostRestaurantValidator;
 import org.swiggy.validator.validatorgroup.Restaurant.GetRestaurantValidator;
@@ -45,13 +42,12 @@ public class RestaurantController {
     private static RestaurantController restaurantController;
     private final RestaurantService restaurantService;
     private final JacksonFactory jacksonFactory;
-    private final Validator validator;
+    private final ValidatorFactory validatorFactory;
 
     private RestaurantController() {
         restaurantService = RestaurantServiceImpl.getInstance();
         jacksonFactory = JacksonFactory.getInstance();
-        validator = Validation.byProvider(HibernateValidator.class).configure()
-                .messageInterpolator(new ParameterMessageInterpolator()).buildValidatorFactory().getValidator();
+        validatorFactory = ValidatorFactory.getInstance();
     }
 
     /**
@@ -80,17 +76,9 @@ public class RestaurantController {
     @POST
     @Consumes("application/json")
     public byte[] createRestaurantProfile(final Restaurant restaurant) {
-        final Set<ConstraintViolation<Restaurant>> violationSet = validator.validate(restaurant,
-                PostRestaurantValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(restaurant, PostRestaurantValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();
@@ -117,17 +105,9 @@ public class RestaurantController {
         final Restaurant restaurantPojo = new Restaurant();
 
         restaurantPojo.setId(restaurantId);
-        final Set<ConstraintViolation<Restaurant>> violationSet = validator.validate(restaurantPojo,
-                GetRestaurantValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(restaurantPojo, GetRestaurantValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();
@@ -170,20 +150,11 @@ public class RestaurantController {
             switch (type) {
                 case PHONE_NUMBER -> restaurant.setPhoneNumber(value);
                 case EMAIL_ID -> restaurant.setEmailId(value);
-                default -> jsonViolations.add(jacksonFactory.createObjectNode()
-                        .put("error", "invalid data entered"));
             }
         }
-        final Set<ConstraintViolation<Restaurant>> violationSet = validator.validate(restaurant,
-                LoginRestaurantValidation.class);
+        jsonViolations.addArray(validatorFactory.getViolations(restaurant, LoginRestaurantValidation.class));
 
-        if (!violationSet.isEmpty() || !jsonViolations.isEmpty()) {
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final Restaurant restaurantPojo = restaurantService.getRestaurant(type, value, password);
@@ -232,28 +203,12 @@ public class RestaurantController {
     @Produces("application/json")
     public byte[] getMenuCard(@PathParam("restaurantId") final long restaurantId,
                                   @PathParam("foodTypeId") final int menuCardTypeId) {
-        final JsonArray jsonViolations = jacksonFactory.createArrayNode();
         final Restaurant restaurant = new Restaurant();
 
         restaurant.setId(restaurantId);
-        final Set<ConstraintViolation<Restaurant>> violationSet = validator.validate(restaurant,
-                GetFoodValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(restaurant, GetFoodValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-        }
-        final Set<ConstraintViolation<MenuCardType>> foodTypeViolationSet = validator
-                .validate(MenuCardType.getTypeById(menuCardTypeId), GetFoodValidator.class);
-
-        if (!foodTypeViolationSet.isEmpty()) {
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final List<Food> menuCard = restaurantService.getMenuCard(restaurantId, menuCardTypeId);
@@ -282,25 +237,14 @@ public class RestaurantController {
         final Restaurant restaurant = new Restaurant();
 
         restaurant.setId(restaurantId);
-        final Set<ConstraintViolation<Restaurant>> violationSet = validator.validate(restaurant,
-                GetRestaurantValidator.class);
-        final JsonArray jsonViolations = jacksonFactory.createArrayNode();
+        final JsonArray jsonViolations = validatorFactory.getViolations(restaurant, GetRestaurantValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
+        if (!jsonViolations.isEmpty()) {
+            return jsonViolations.asBytes();
         }
-        final Set<ConstraintViolation<Food>> foodViolationSet = validator.validate(food,
-                PostFoodValidator.class);
+        jsonViolations.addArray(validatorFactory.getViolations(food, PostFoodValidator.class));
 
-        if (!foodViolationSet.isEmpty()) {
-            for (final ConstraintViolation violation : foodViolationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();
@@ -326,17 +270,9 @@ public class RestaurantController {
         final Food food = new Food();
 
         food.setId(foodId);
-        final Set<ConstraintViolation<Food>> violationSet = validator.validate(food,
-                DeleteFoodValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(food, DeleteFoodValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();
@@ -384,20 +320,11 @@ public class RestaurantController {
                 case PASSWORD -> restaurant.setPassword(updateValue);
                 case EMAIL_ID -> restaurant.setEmailId(updateValue);
                 case PHONE_NUMBER -> restaurant.setPhoneNumber(updateValue);
-                default -> jsonViolations.add(jacksonFactory.createObjectNode()
-                        .put("error", "invalid data entered"));
             }
         }
-        final Set<ConstraintViolation<Restaurant>> violationSet = validator.validate(restaurant,
-                PutRestaurantValidator.class);
+        jsonViolations.addArray(validatorFactory.getViolations(restaurant, PutRestaurantValidator.class));
 
-        if (!violationSet.isEmpty() || !jsonViolations.isEmpty()) {
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(),
-                        violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
 

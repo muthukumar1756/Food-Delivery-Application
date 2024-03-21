@@ -82,6 +82,6 @@ public class ValidatorFactory {
             return jsonViolations;
         }
 
-        return null;
+        return jacksonFactory.createArrayNode();
     }
 }

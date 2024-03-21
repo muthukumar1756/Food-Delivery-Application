@@ -8,14 +8,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.PathParam;
 
 import java.util.List;
-import java.util.Set;
-
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-
-import org.hibernate.validator.HibernateValidator;
-import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 
 import org.swiggy.common.json.JacksonFactory;
 import org.swiggy.common.json.JsonArray;
@@ -45,14 +37,11 @@ public class OrderController {
     private static OrderController orderController;
     private final OrderService orderService;
     private final JacksonFactory jacksonFactory;
-    private final Validator validator;
     private final ValidatorFactory validatorFactory;
 
     private OrderController() {
         orderService = OrderServiceImpl.getInstance();
         jacksonFactory = JacksonFactory.getInstance();
-        validator = Validation.byProvider(HibernateValidator.class).configure()
-                .messageInterpolator(new ParameterMessageInterpolator()).buildValidatorFactory().getValidator();
         validatorFactory = ValidatorFactory.getInstance();
     }
 
@@ -82,16 +71,9 @@ public class OrderController {
     @POST
     @Consumes("application/json")
     public byte[] placeOrder(final List<Order> orderList) {
-        final Set<ConstraintViolation<List<Order>>> violationSet = validator.validate(orderList,
-                PostOrderValdiator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(orderList, PostOrderValdiator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(), violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();
@@ -115,16 +97,9 @@ public class OrderController {
     @POST
     @Consumes("application/json")
     public byte[] addAddress(final Address address) {
-        final Set<ConstraintViolation<Address>> violationSet = validator.validate(address,
-                PostAddressValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(address, PostAddressValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(), violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final JsonObject jsonObject = jacksonFactory.createObjectNode();
@@ -152,18 +127,6 @@ public class OrderController {
 
         address.setUserId(userId);
         final JsonArray jsonViolations = validatorFactory.getViolations(address, GetAddressValidator.class);
-//        final Set<ConstraintViolation<Address>> violationSet = validator.validate(address,
-//                GetAddressValidator.class);
-//
-//        if (!violationSet.isEmpty()) {
-//            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-//
-//            for (final ConstraintViolation violation : violationSet) {
-//                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(), violation.getMessage()));
-//            }
-//
-//            return jsonViolations.asBytes();
-//        }
 
         if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
@@ -192,16 +155,9 @@ public class OrderController {
         final Order order = new Order();
 
         order.setUserId(userId);
-        final Set<ConstraintViolation<Order>> violationSet = validator.validate(order,
-                GetOrderValidator.class);
+        final JsonArray jsonViolations = validatorFactory.getViolations(order, GetOrderValidator.class);
 
-        if (!violationSet.isEmpty()) {
-            final JsonArray jsonViolations = jacksonFactory.createArrayNode();
-
-            for (final ConstraintViolation violation : violationSet) {
-                jsonViolations.add(jacksonFactory.createObjectNode().put(violation.getPropertyPath().toString(), violation.getMessage()));
-            }
-
+        if (!jsonViolations.isEmpty()) {
             return jsonViolations.asBytes();
         }
         final List<Order> orderList = orderService.getOrders(userId);

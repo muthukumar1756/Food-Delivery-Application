@@ -68,6 +68,30 @@ public class JsonArray {
 
     /**
      * <p>
+     * Adds the json object to the array node.
+     * </p>
+     *
+     * @param jsonArray The json object
+     */
+    public void addArray(final JsonArray jsonArray) {
+        final ArrayNode arrayNode = jsonArray.getArrayNode();
+
+        arrayNode.addAll(arrayNode);
+    }
+
+    /**
+     * <p>
+     * Gets the array node.
+     * </p>
+     *
+     * @return The array node
+     */
+    private ArrayNode getArrayNode() {
+        return arrayNode;
+    }
+
+    /**
+     * <p>
      *  checks the array node is empty or not
      * </p>
      *
